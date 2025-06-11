@@ -1,280 +1,413 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="fr">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Worship Room - Plateforme de Streaming en Direct')</title>
+
+    <title>@yield('title', 'ANADEC RH - Gestion des Ressources Humaines')</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- Configuration Tailwind personnalisée -->
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        primary: {
-                            50: '#eff6ff',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                        },
-                        accent: {
-                            500: '#f59e0b',
-                            600: '#d97706',
-                        }
+                        'anadec-blue': '#1e40af',
+                        'anadec-light-blue': '#3b82f6',
+                        'anadec-dark-blue': '#1e3a8a',
                     }
                 }
             }
         }
     </script>
 
-    <!-- Boxicons -->
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
-    <!-- Inter Font -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        /* Styles personnalisés */
+        .sidebar-collapsed {
+            width: 4rem;
+        }
+
+        .sidebar-expanded {
+            width: 16rem;
+        }
+
+        .transition-width {
+            transition: width 0.3s ease-in-out;
+        }
+
+        .sidebar-text {
+            opacity: 1;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .sidebar-collapsed .sidebar-text {
+            opacity: 0;
+        }
+
+        .profile-dropdown {
+            display: none;
+        }
+
+        .profile-dropdown.show {
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
-    <div class="flex min-h-screen">
-        @auth
-            <!-- Sidebar -->
-            <aside class="w-64 bg-gray-800 border-r border-gray-700 flex-shrink-0">
-                <div class="p-6">
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-                            <i class='bx bx-video text-white text-xl'></i>
-                        </div>
-                        <div>
-                            <h1 class="text-xl font-bold text-white">Worship Room</h1>
-                            <p class="text-sm text-gray-400">Streaming en Direct</p>
-                        </div>
-                    </div>
+<body class="bg-gray-50">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar-expanded transition-width bg-anadec-blue flex flex-col">
+            <!-- Logo -->
+            <div class="flex items-center justify-center h-16 bg-anadec-dark-blue">
+                <div class="flex items-center">
+                    <i class="bx bx-buildings text-white text-2xl"></i>
+                    <span class="sidebar-text ml-2 text-white font-bold text-lg">ANADEC RH</span>
+                </div>
+            </div>
 
-                    <!-- User Info -->
-                    <div class="mb-8 p-4 bg-gray-700/50 rounded-lg">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
-                                @if(auth()->user()->avatar)
-                                    <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="Avatar" class="w-full h-full rounded-full object-cover">
-                                @else
-                                    <i class='bx bx-user text-white'></i>
-                                @endif
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-white truncate">{{ auth()->user()->name }}</p>
-                                <p class="text-xs text-gray-400 capitalize">{{ auth()->user()->role === 'broadcaster' ? 'Diffuseur' : 'Spectateur' }}</p>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Navigation -->
+            <nav class="flex-1 px-2 py-4 space-y-2">
+                <!-- Dashboard -->
+                <a href="{{ route('dashboard') }}"
+                   class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue {{ request()->routeIs('dashboard') ? 'bg-anadec-light-blue' : '' }}">
+                    <i class="bx bx-home-alt text-xl"></i>
+                    <span class="sidebar-text ml-3">Tableau de Bord</span>
+                </a>
 
-                    <!-- Navigation -->
-                    <nav class="space-y-2">
-                        <a href="{{ route('dashboard') }}"
-                           class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary-500/20 text-primary-400 border-l-4 border-primary-500' : '' }}">
-                            <i class='bx bx-home text-xl'></i>
-                            <span>Tableau de Bord</span>
+                <!-- Gestion des Agents -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('agents-submenu')">
+                        <i class="bx bx-group text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Agents</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="agents-submenu" class="ml-4 space-y-1 {{ request()->routeIs('agents.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('agents.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Générale</span>
                         </a>
-
-                        <a href="{{ route('streams.index') }}"
-                           class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('streams.*') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                            <i class='bx bx-broadcast text-xl'></i>
-                            <span>Lives en Direct</span>
+                        <a href="{{ route('agents.identification') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-id-card text-lg"></i>
+                            <span class="sidebar-text ml-3">Identification</span>
                         </a>
-
-                        <a href="{{ route('videos.index') }}"
-                           class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('videos.*') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                            <i class='bx bx-video text-xl'></i>
-                            <span>Vidéos</span>
+                        <a href="{{ route('agents.retraites') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user-check text-lg"></i>
+                            <span class="sidebar-text ml-3">Retraités</span>
                         </a>
-
-                        @if(auth()->user()->isBroadcaster())
-                            <div class="pt-4 mt-4 border-t border-gray-700">
-                                <p class="text-xs text-gray-400 uppercase tracking-wider mb-3 px-4">Diffuseur</p>
-
-                                <a href="{{ route('broadcaster.streams.create') }}"
-                                   class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors">
-                                    <i class='bx bx-plus-circle text-xl'></i>
-                                    <span>Créer un Live</span>
-                                </a>
-
-                                <a href="{{ route('broadcaster.streams') }}"
-                                   class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('broadcaster.streams*') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                                    <i class='bx bx-list-ul text-xl'></i>
-                                    <span>Mes Lives</span>
-                                </a>
-
-                                <a href="{{ route('broadcaster.donations') }}"
-                                   class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('broadcaster.donations') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                                    <i class='bx bx-dollar text-xl'></i>
-                                    <span>Dons Reçus</span>
-                                </a>
-                            </div>
-                        @else
-                            <a href="{{ route('subscriptions.index') }}"
-                               class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('subscriptions.*') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                                <i class='bx bx-heart text-xl'></i>
-                                <span>Abonnements</span>
-                            </a>
-
-                            <a href="{{ route('donations.history') }}"
-                               class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('donations.*') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                                <i class='bx bx-history text-xl'></i>
-                                <span>Historique des Dons</span>
-                            </a>
-                        @endif
-
-                        <a href="{{ route('notifications.index') }}"
-                           class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors {{ request()->routeIs('notifications.*') ? 'bg-primary-500/20 text-primary-400' : '' }}">
-                            <i class='bx bx-bell text-xl'></i>
-                            <span>Notifications</span>
-                            <span id="notification-badge" class="hidden ml-auto bg-red-500 text-white text-xs px-2 py-1 rounded-full"></span>
+                        <a href="{{ route('agents.malades') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-first-aid text-lg"></i>
+                            <span class="sidebar-text ml-3">Malades</span>
                         </a>
-                    </nav>
-
-                    <!-- Logout -->
-                    <div class="mt-8 pt-4 border-t border-gray-700">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="flex items-center gap-3 px-4 py-3 text-gray-300 rounded-lg hover:bg-red-600/20 hover:text-red-400 transition-colors w-full text-left">
-                                <i class='bx bx-log-out text-xl'></i>
-                                <span>Déconnexion</span>
-                            </button>
-                        </form>
+                        <a href="{{ route('agents.demissions') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user-minus text-lg"></i>
+                            <span class="sidebar-text ml-3">Démissions</span>
+                        </a>
+                        <a href="{{ route('agents.revocations') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user-x text-lg"></i>
+                            <span class="sidebar-text ml-3">Révocations</span>
+                        </a>
+                        <a href="{{ route('agents.disponibilites') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-time text-lg"></i>
+                            <span class="sidebar-text ml-3">Disponibilités</span>
+                        </a>
+                        <a href="{{ route('agents.detachements') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-transfer text-lg"></i>
+                            <span class="sidebar-text ml-3">Détachements</span>
+                        </a>
+                        <a href="{{ route('agents.mutations') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-shuffle text-lg"></i>
+                            <span class="sidebar-text ml-3">Mutations</span>
+                        </a>
+                        <a href="{{ route('agents.reintegrations') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-undo text-lg"></i>
+                            <span class="sidebar-text ml-3">Réintégrations</span>
+                        </a>
+                        <a href="{{ route('agents.missions') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-briefcase text-lg"></i>
+                            <span class="sidebar-text ml-3">Missions</span>
+                        </a>
+                        <a href="{{ route('agents.deces') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-cross text-lg"></i>
+                            <span class="sidebar-text ml-3">Décès</span>
+                        </a>
                     </div>
                 </div>
-            </aside>
-        @endauth
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-auto">
-            @auth
-                <!-- Top Header -->
-                <header class="bg-gray-800 border-b border-gray-700 px-6 py-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <h1 class="text-2xl font-semibold text-white">@yield('page-title', 'Tableau de Bord')</h1>
-                            <p class="text-gray-400">@yield('page-subtitle', 'Bon retour parmi nous !')</p>
-                        </div>
+                <!-- Gestion des Présences -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('presences-submenu')">
+                        <i class="bx bx-calendar-check text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Présences</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="presences-submenu" class="ml-4 space-y-1 {{ request()->routeIs('presences.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('presences.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Générale</span>
+                        </a>
+                        <a href="{{ route('presences.daily') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-calendar-event text-lg"></i>
+                            <span class="sidebar-text ml-3">Présence du Jour</span>
+                        </a>
+                        <a href="{{ route('presences.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouvelle Présence</span>
+                        </a>
+                    </div>
+                </div>
 
-                        <div class="flex items-center gap-4">
-                            <!-- Notifications -->
-                            <div class="relative">
-                                <button onclick="toggleNotifications()" class="relative p-2 text-gray-400 hover:text-white transition-colors">
-                                    <i class='bx bx-bell text-xl'></i>
-                                    <span id="notification-dot" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                                </button>
-                            </div>
+                <!-- Gestion des Congés -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('conges-submenu')">
+                        <i class="bx bx-calendar-minus text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Congés</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="conges-submenu" class="ml-4 space-y-1 {{ request()->routeIs('conges.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('conges.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard</span>
+                        </a>
+                        <a href="{{ route('conges.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Générale</span>
+                        </a>
+                        <a href="{{ route('conges.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouvelle Demande</span>
+                        </a>
+                        <a href="{{ route('conges.mes-conges') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user text-lg"></i>
+                            <span class="sidebar-text ml-3">Mes Congés</span>
+                        </a>
+                        <a href="{{ route('conges.approbation-directeur') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-check text-lg"></i>
+                            <span class="sidebar-text ml-3">Approbation Dir.</span>
+                        </a>
+                        <a href="{{ route('conges.validation-drh') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-check-double text-lg"></i>
+                            <span class="sidebar-text ml-3">Validation DRH</span>
+                        </a>
+                    </div>
+                </div>
 
-                            <!-- Profile Dropdown -->
-                            <div class="relative">
-                                <button onclick="toggleProfileMenu()" class="flex items-center gap-2 p-2 text-gray-400 hover:text-white transition-colors">
-                                    <div class="w-8 h-8 bg-primary-500 rounded-full flex items-center justify-center">
-                                        @if(auth()->user()->avatar)
-                                            <img src="{{ Storage::url(auth()->user()->avatar) }}" alt="Avatar" class="w-full h-full rounded-full object-cover">
-                                        @else
-                                            <i class='bx bx-user text-white text-sm'></i>
-                                        @endif
-                                    </div>
-                                    <i class='bx bx-chevron-down'></i>
-                                </button>
+                <!-- Cotation des Agents -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('cotations-submenu')">
+                        <i class="bx bx-chart text-xl"></i>
+                        <span class="sidebar-text ml-3">Cotation des Agents</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="cotations-submenu" class="ml-4 space-y-1 {{ request()->routeIs('cotations.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('cotations.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard</span>
+                        </a>
+                        <a href="{{ route('cotations.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Générale</span>
+                        </a>
+                        <a href="{{ route('cotations.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouvelle Cotation</span>
+                        </a>
+                    </div>
+                </div>
 
-                                <div id="profile-menu" class="hidden absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2">
-                                    @if(auth()->user()->isBroadcaster())
-                                        <a href="{{ route('broadcaster.profile') }}" class="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
-                                            <i class='bx bx-user mr-2'></i>Profil
-                                        </a>
+                <!-- Gestion des Rôles et Permissions -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('roles-submenu')">
+                        <i class="bx bx-shield text-xl"></i>
+                        <span class="sidebar-text ml-3">Rôles & Permissions</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="roles-submenu" class="ml-4 space-y-1 {{ request()->routeIs('roles.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('roles.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user-check text-lg"></i>
+                            <span class="sidebar-text ml-3">Gestion des Rôles</span>
+                        </a>
+                        <a href="{{ route('roles.users') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-group text-lg"></i>
+                            <span class="sidebar-text ml-3">Utilisateurs</span>
+                        </a>
+                        <a href="{{ route('roles.permissions') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-shield text-lg"></i>
+                            <span class="sidebar-text ml-3">Matrice Permissions</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Bouton de réduction -->
+            <div class="p-2">
+                <button onclick="toggleSidebar()"
+                        class="w-full flex items-center justify-center px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue">
+                    <i id="sidebar-toggle-icon" class="bx bx-chevron-left text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">@yield('page-title', 'Tableau de Bord')</h1>
+                        <p class="text-sm text-gray-600">@yield('page-description', 'Bienvenue sur ANADEC RH')</p>
+                    </div>
+
+                    <div class="flex items-center space-x-4">
+                        <!-- Profil utilisateur avec dropdown -->
+                        <div class="relative">
+                            <button onclick="toggleProfileDropdown()" class="flex items-center space-x-3 text-left focus:outline-none hover:bg-gray-50 rounded-lg p-2 transition-colors">
+                                <!-- Photo ou initiales -->
+                                <div class="flex items-center space-x-3">
+                                    @if(Auth::user()->hasPhoto())
+                                        <img src="{{ Auth::user()->photo_url }}"
+                                             alt="{{ Auth::user()->name }}"
+                                             class="w-10 h-10 rounded-full object-cover border-2 border-gray-200">
+                                    @else
+                                        <div class="w-10 h-10 bg-gradient-to-br from-anadec-blue to-anadec-dark-blue rounded-full flex items-center justify-center">
+                                            <span class="text-sm font-bold text-white">
+                                                {{ Auth::user()->initials }}
+                                            </span>
+                                        </div>
                                     @endif
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
-                                            <i class='bx bx-log-out mr-2'></i>Déconnexion
-                                        </button>
-                                    </form>
+
+                                    <div class="hidden md:block">
+                                        <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
+                                        <p class="text-xs text-gray-500">
+                                            {{ Auth::user()->role ? Auth::user()->role->display_name : 'Aucun rôle' }}
+                                        </p>
+                                    </div>
+
+                                    <i class="bx bx-chevron-down text-gray-400"></i>
                                 </div>
+                            </button>
+
+                            <!-- Dropdown menu -->
+                            <div id="profile-dropdown" class="profile-dropdown absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
+                                <div class="px-4 py-2 border-b border-gray-100">
+                                    <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                </div>
+
+                                <a href="{{ route('profile.show') }}"
+                                   class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="bx bx-user mr-3 text-gray-400"></i>
+                                    Mon Profil
+                                </a>
+
+                                @if(Auth::user()->agent)
+                                    <a href="{{ route('agents.show', Auth::user()->agent) }}"
+                                       class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                        <i class="bx bx-id-card mr-3 text-gray-400"></i>
+                                        Profil Agent
+                                    </a>
+                                @endif
+
+                                <a href="{{ route('profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                    <i class="bx bx-cog mr-3 text-gray-400"></i>
+                                    Paramètres
+                                </a>
+
+                                <div class="border-t border-gray-100 my-1"></div>
+
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors">
+                                        <i class="bx bx-log-out mr-3 text-gray-400"></i>
+                                        Déconnexion
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </header>
-            @endauth
+                </div>
+            </header>
 
-            <!-- Page Content -->
-            <div class="p-6">
+            <!-- Zone de contenu -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
                 @if(session('success'))
-                    <div class="mb-6 bg-green-500/20 border border-green-500/50 text-green-400 px-4 py-3 rounded-lg">
-                        {{ session('success') }}
+                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ session('success') }}</span>
                     </div>
                 @endif
 
                 @if(session('error'))
-                    <div class="mb-6 bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg">
-                        {{ session('error') }}
+                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                        <span class="block sm:inline">{{ session('error') }}</span>
                     </div>
                 @endif
 
                 @yield('content')
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
     <script>
-        function toggleNotifications() {
-            // Add notification dropdown functionality
-            console.log('Toggle notifications');
+        // Gestion de la sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const icon = document.getElementById('sidebar-toggle-icon');
+
+            if (sidebar.classList.contains('sidebar-expanded')) {
+                sidebar.classList.remove('sidebar-expanded');
+                sidebar.classList.add('sidebar-collapsed');
+                icon.classList.remove('bx-chevron-left');
+                icon.classList.add('bx-chevron-right');
+            } else {
+                sidebar.classList.remove('sidebar-collapsed');
+                sidebar.classList.add('sidebar-expanded');
+                icon.classList.remove('bx-chevron-right');
+                icon.classList.add('bx-chevron-left');
+            }
         }
 
-        function toggleProfileMenu() {
-            const menu = document.getElementById('profile-menu');
-            menu.classList.toggle('hidden');
+        // Gestion des sous-menus
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            submenu.classList.toggle('hidden');
         }
 
-        // Close profile menu when clicking outside
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('profile-menu');
-            const button = e.target.closest('button[onclick="toggleProfileMenu()"]');
+        // Gestion du dropdown profil
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profile-dropdown');
+            dropdown.classList.toggle('show');
+        }
 
-            if (!button && !menu.contains(e.target)) {
-                menu.classList.add('hidden');
+        // Fermer le dropdown si on clique ailleurs
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('profile-dropdown');
+            const button = event.target.closest('button');
+
+            if (!button || !button.onclick || button.onclick.toString().indexOf('toggleProfileDropdown') === -1) {
+                dropdown.classList.remove('show');
             }
         });
 
-        // Load notification count
-        async function loadNotificationCount() {
-            try {
-                const response = await fetch('{{ route("notifications.unread-count") }}');
-                const data = await response.json();
-
-                const badge = document.getElementById('notification-badge');
-                const dot = document.getElementById('notification-dot');
-
-                if (data.count > 0) {
-                    badge.textContent = data.count;
-                    badge.classList.remove('hidden');
-                    dot.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                    dot.classList.add('hidden');
-                }
-            } catch (error) {
-                console.error('Error loading notification count:', error);
-            }
-        }
-
-        @auth
-            // Load notification count on page load
-            loadNotificationCount();
-
-            // Refresh notification count every 30 seconds
-            setInterval(loadNotificationCount, 30000);
-        @endauth
+        // Fermer les alertes automatiquement
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('[role="alert"]');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
     </script>
-
-    @stack('scripts')
 </body>
 </html>

@@ -2,95 +2,79 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Stream;
-use App\Models\Video;
-use App\Models\Donation;
-use App\Models\Subscription;
+use App\Models\Agent;
+use App\Models\Presence;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-
-        if ($user->isBroadcaster()) {
-            return $this->broadcasterDashboard();
-        } else {
-            return $this->spectatorDashboard();
-        }
-    }
-
-    private function broadcasterDashboard()
-    {
-        $user = Auth::user();
+        // Statistiques générales
+        $totalAgents = Agent::where('statut', 'actif')->count();
+        $totalRetraites = Agent::where('statut', 'retraite')->count();
+        $totalMalades = Agent::where('statut', 'malade')->count();
         
-        $stats = [
-            'total_donations' => $user->receivedDonations()->completed()->sum('amount'),
-            'total_subscribers' => $user->subscribers()->count(),
-            'total_streams' => $user->streams()->count(),
-            'total_videos' => $user->videos()->count(),
+        // Présences du jour
+        $today = Carbon::today();
+        $presencesToday = Presence::whereDate('date', $today)->count();
+        $presentsToday = Presence::whereDate('date', $today)
+            ->where('statut', 'present')
+            ->count();
+        $retardsToday = Presence::whereDate('date', $today)
+            ->where('statut', 'present_retard')
+            ->count();
+        $absentsToday = Presence::whereDate('date', $today)
+            ->where('statut', 'absent')
+            ->count();
+        
+        // Statistiques par direction (exemple)
+        $directions = [
+            'Direction Générale' => [
+                'total' => Agent::where('direction', 'Direction Générale')->where('statut', 'actif')->count(),
+                'presents' => Presence::whereDate('date', $today)
+                    ->whereHas('agent', function($q) {
+                        $q->where('direction', 'Direction Générale');
+                    })->where('statut', 'present')->count()
+            ],
+            'Direction RH' => [
+                'total' => Agent::where('direction', 'Direction RH')->where('statut', 'actif')->count(),
+                'presents' => Presence::whereDate('date', $today)
+                    ->whereHas('agent', function($q) {
+                        $q->where('direction', 'Direction RH');
+                    })->where('statut', 'present')->count()
+            ],
+            'Direction Financière' => [
+                'total' => Agent::where('direction', 'Direction Financière')->where('statut', 'actif')->count(),
+                'presents' => Presence::whereDate('date', $today)
+                    ->whereHas('agent', function($q) {
+                        $q->where('direction', 'Direction Financière');
+                    })->where('statut', 'present')->count()
+            ]
         ];
-
-        $recentStreams = $user->streams()
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $recentDonations = $user->receivedDonations()
-            ->with('donor')
-            ->completed()
-            ->latest()
-            ->take(10)
-            ->get();
-
-        return view('dashboard.broadcaster', compact('stats', 'recentStreams', 'recentDonations'));
-    }
-
-    private function spectatorDashboard()
-    {
-        $liveStreams = Stream::live()
-            ->with('broadcaster')
-            ->latest('started_at')
-            ->take(6)
-            ->get();
-
-        $upcomingStreams = Stream::scheduled()
-            ->with('broadcaster')
-            ->where('scheduled_at', '>', now())
-            ->orderBy('scheduled_at')
-            ->take(4)
-            ->get();
-
-        $featuredVideos = Video::published()
-            ->featured()
-            ->with('broadcaster')
-            ->latest('published_at')
-            ->take(6)
-            ->get();
-
-        $recentVideos = Video::published()
-            ->with('broadcaster')
-            ->latest('published_at')
-            ->take(8)
-            ->get();
-
-        $subscribedBroadcasters = Auth::user()
-            ->subscriptions()
-            ->active()
-            ->with('broadcaster')
-            ->latest()
-            ->take(5)
-            ->get()
-            ->pluck('broadcaster');
-
-        return view('dashboard.spectator', compact(
-            'liveStreams',
-            'upcomingStreams',
-            'featuredVideos',
-            'recentVideos',
-            'subscribedBroadcasters'
+        
+        // Graphique des présences de la semaine
+        $weekPresences = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $weekPresences[] = [
+                'date' => $date->format('d/m'),
+                'presents' => Presence::whereDate('date', $date)->where('statut', 'present')->count(),
+                'absents' => Presence::whereDate('date', $date)->where('statut', 'absent')->count()
+            ];
+        }
+        
+        return view('dashboard', compact(
+            'totalAgents',
+            'totalRetraites', 
+            'totalMalades',
+            'presencesToday',
+            'presentsToday',
+            'retardsToday',
+            'absentsToday',
+            'directions',
+            'weekPresences'
         ));
     }
 }

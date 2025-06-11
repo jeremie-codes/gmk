@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'broadcaster' => BroadcasterMiddleware::class,
-            'spectator' => \App\Http\Middleware\SpectatorMiddleware::class,
+            'spectator' => SpectatorMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

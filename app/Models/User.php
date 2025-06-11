@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -12,20 +11,12 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    const ROLE_SPECTATOR = 'spectator';
-    const ROLE_BROADCASTER = 'broadcaster';
-
     protected $fillable = [
         'name',
         'email',
-        'phone',
+        'photo',
         'password',
-        'role',
-        'avatar',
-        'bio',
-        'website_url',
-        'is_active',
-        'account_deactivated_at',
+        'role_id',
     ];
 
     protected $hidden = [
@@ -35,72 +26,85 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'account_deactivated_at' => 'datetime',
-        'is_active' => 'boolean',
+        'password' => 'hashed',
     ];
 
-    public function streams()
+    // Relations
+    public function agent()
     {
-        return $this->hasMany(Stream::class, 'broadcaster_id');
+        return $this->hasOne(Agent::class);
     }
 
-    public function videos()
+    public function role()
     {
-        return $this->hasMany(Video::class, 'broadcaster_id');
+        return $this->belongsTo(Role::class);
     }
 
-    public function comments()
+    // Méthodes utilitaires pour la photo
+    public function getInitialsAttribute()
     {
-        return $this->hasMany(Comment::class);
+        $names = explode(' ', $this->name);
+        $initials = '';
+
+        foreach ($names as $name) {
+            $initials .= strtoupper(substr($name, 0, 1));
+        }
+
+        return substr($initials, 0, 2); // Maximum 2 initiales
     }
 
-    public function donations()
+    public function getPhotoUrlAttribute()
     {
-        return $this->hasMany(Donation::class, 'donor_id');
+        if ($this->photo && file_exists(public_path('storage/' . $this->photo))) {
+            return asset('storage/' . $this->photo);
+        }
+
+        return null;
     }
 
-    public function receivedDonations()
+    public function hasPhoto()
     {
-        return $this->hasMany(Donation::class, 'broadcaster_id');
+        return $this->photo && file_exists(public_path('storage/' . $this->photo));
     }
 
-    public function subscriptions()
+    // Méthodes de permissions
+    public function hasPermission($permission)
     {
-        return $this->hasMany(Subscription::class, 'subscriber_id');
+        return $this->role && $this->role->hasPermission($permission);
     }
 
-    public function subscribers()
+    public function hasRole($roleName)
     {
-        return $this->hasMany(Subscription::class, 'broadcaster_id');
+        return $this->role && $this->role->name === $roleName;
     }
 
-    public function notifications()
+    public function hasAnyRole(array $roles)
     {
-        return $this->hasMany(Notification::class);
+        return $this->role && in_array($this->role->name, $roles);
     }
 
-    public function watchHistory()
+    // Vérifier si l'utilisateur peut accéder à une ressource
+    public function canAccess($resource, $action = 'view')
     {
-        return $this->hasMany(WatchHistory::class);
+        $permission = "{$resource}.{$action}";
+        return $this->hasPermission($permission);
     }
 
-    public function isBroadcaster()
+    // Vérifier si l'utilisateur est un administrateur
+    public function isAdmin()
     {
-        return $this->role === self::ROLE_BROADCASTER;
+        return $this->hasRole('drh');
     }
 
-    public function isSpectator()
+    // Vérifier si l'utilisateur est un directeur
+    public function isDirecteur()
     {
-        return $this->role === self::ROLE_SPECTATOR;
+        return $this->hasAnyRole(['directeur', 'sous_directeur', 'drh']);
     }
 
-    public function getTotalDonationsAttribute()
+    // Vérifier si l'utilisateur est du personnel RH
+    public function isRH()
     {
-        return $this->receivedDonations()->sum('amount');
-    }
-
-    public function getSubscribersCountAttribute()
-    {
-        return $this->subscribers()->count();
+        return $this->hasAnyRole(['rh', 'drh']);
     }
 }
