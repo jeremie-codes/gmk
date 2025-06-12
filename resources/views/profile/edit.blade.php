@@ -58,7 +58,7 @@
                     <label for="name" class="block text-sm font-medium text-gray-700">Nom complet *</label>
                     <input type="text" name="name" id="name" required
                            value="{{ old('name', $user->name) }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('name')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -68,7 +68,7 @@
                     <label for="email" class="block text-sm font-medium text-gray-700">Adresse e-mail *</label>
                     <input type="email" name="email" id="email" required
                            value="{{ old('email', $user->email) }}"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('email')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -132,7 +132,7 @@
                 <div>
                     <label for="current_password" class="block text-sm font-medium text-gray-700">Mot de passe actuel</label>
                     <input type="password" name="current_password" id="current_password"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('current_password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -141,7 +141,7 @@
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
                     <input type="password" name="password" id="password"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -150,7 +150,7 @@
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmer le nouveau mot de passe</label>
                     <input type="password" name="password_confirmation" id="password_confirmation"
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                 </div>
             </div>
 

@@ -24,7 +24,7 @@
                     <div>
                         <label for="agent_id" class="block text-sm font-medium text-gray-700">Agent *</label>
                         <select name="agent_id" id="agent_id" required onchange="calculerCotation()"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             <option value="">Sélectionnez un agent...</option>
                             @foreach($agents as $agent)
                                 <option value="{{ $agent->id }}" {{ old('agent_id') == $agent->id ? 'selected' : '' }}>
@@ -43,7 +43,7 @@
                             <input type="date" name="periode_debut" id="periode_debut" required
                                    value="{{ old('periode_debut') }}"
                                    onchange="calculerCotation()"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                   class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             @error('periode_debut')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -54,7 +54,7 @@
                             <input type="date" name="periode_fin" id="periode_fin" required
                                    value="{{ old('periode_fin') }}"
                                    onchange="calculerCotation()"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                   class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             @error('periode_fin')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -64,7 +64,7 @@
                     <div>
                         <label for="observations" class="block text-sm font-medium text-gray-700">Observations</label>
                         <textarea name="observations" id="observations" rows="4"
-                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
+                                  class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
                                   placeholder="Commentaires sur la performance de l'agent...">{{ old('observations') }}</textarea>
                         @error('observations')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>

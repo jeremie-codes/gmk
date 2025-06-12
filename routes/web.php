@@ -7,9 +7,10 @@ use App\Http\Controllers\CongeController;
 use App\Http\Controllers\CotationController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DemandeFournitureController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\StockController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -25,7 +26,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('auth')->group(function () {
     // Dashboard principal
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Profil utilisateur
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'show'])->name('show');
@@ -33,7 +34,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/update', [ProfileController::class, 'update'])->name('update');
         Route::delete('/delete-photo', [ProfileController::class, 'deletePhoto'])->name('delete-photo');
     });
-    
+
     // Module Gestion des agents
     Route::prefix('agents')->name('agents.')->group(function () {
         Route::get('/', [AgentController::class, 'index'])->name('index');
@@ -43,7 +44,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{agent}/edit', [AgentController::class, 'edit'])->name('edit');
         Route::put('/{agent}', [AgentController::class, 'update'])->name('update');
         Route::delete('/{agent}', [AgentController::class, 'destroy'])->name('destroy');
-        
+
         // Sous-modules agents
         Route::get('/identification/list', [AgentController::class, 'identification'])->name('identification');
         Route::get('/retraites/list', [AgentController::class, 'retraites'])->name('retraites');
@@ -57,7 +58,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/missions/list', [AgentController::class, 'missions'])->name('missions');
         Route::get('/deces/list', [AgentController::class, 'deces'])->name('deces');
     });
-    
+
     // Module Gestion des présences
     Route::prefix('presences')->name('presences.')->group(function () {
         Route::get('/', [PresenceController::class, 'index'])->name('index');
@@ -67,12 +68,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{presence}/edit', [PresenceController::class, 'edit'])->name('edit');
         Route::put('/{presence}', [PresenceController::class, 'update'])->name('update');
         Route::delete('/{presence}', [PresenceController::class, 'destroy'])->name('destroy');
-        
+
         // Filtres et recherches
         Route::get('/filter', [PresenceController::class, 'filter'])->name('filter');
         Route::get('/export', [PresenceController::class, 'export'])->name('export');
     });
-    
+
     // Module Gestion des congés
     Route::prefix('conges')->name('conges.')->group(function () {
         Route::get('/', [CongeController::class, 'index'])->name('index');
@@ -83,22 +84,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/{conge}/edit', [CongeController::class, 'edit'])->name('edit');
         Route::put('/{conge}', [CongeController::class, 'update'])->name('update');
         Route::delete('/{conge}', [CongeController::class, 'destroy'])->name('destroy');
-        
+
         // Interface agent
         Route::get('/mes-conges/list', [CongeController::class, 'mesConges'])->name('mes-conges');
-        
+
         // Interface d'approbation directeur
         Route::get('/approbation-directeur/list', [CongeController::class, 'approbationDirecteur'])->name('approbation-directeur');
         Route::post('/{conge}/approuver-directeur', [CongeController::class, 'approuverDirecteur'])->name('approuver-directeur');
-        
+
         // Interface de validation DRH
         Route::get('/validation-drh/list', [CongeController::class, 'validationDrh'])->name('validation-drh');
         Route::post('/{conge}/valider-drh', [CongeController::class, 'validerDrh'])->name('valider-drh');
-        
+
         // API pour calcul de solde
         Route::get('/agent/{agent}/solde', [CongeController::class, 'calculerSolde'])->name('calculer-solde');
     });
-    
+
     // Module Cotation des agents
     Route::prefix('cotations')->name('cotations.')->group(function () {
         Route::get('/', [CotationController::class, 'index'])->name('index');
@@ -109,27 +110,43 @@ Route::middleware('auth')->group(function () {
         Route::get('/{cotation}/edit', [CotationController::class, 'edit'])->name('edit');
         Route::put('/{cotation}', [CotationController::class, 'update'])->name('update');
         Route::delete('/{cotation}', [CotationController::class, 'destroy'])->name('destroy');
-        
+
         // API pour calcul en temps réel
         Route::post('/calculer', [CotationController::class, 'calculer'])->name('calculer');
-        
+
         // Génération automatique
         Route::post('/generer-automatique', [CotationController::class, 'genererAutomatique'])->name('generer-automatique');
     });
-    
+
     // Module Gestion des rôles et permissions
     Route::prefix('roles')->name('roles.')->group(function () {
         Route::get('/', [RoleController::class, 'index'])->name('index');
         Route::get('/{role}', [RoleController::class, 'show'])->name('show');
         Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
         Route::put('/{role}', [RoleController::class, 'update'])->name('update');
-        
+
         // Gestion des utilisateurs
         Route::get('/users/list', [RoleController::class, 'users'])->name('users');
         Route::put('/users/{user}/role', [RoleController::class, 'updateUserRole'])->name('update-user-role');
-        
+
         // Matrice des permissions
         Route::get('/permissions/matrix', [RoleController::class, 'permissions'])->name('permissions');
         Route::post('/permissions/update', [RoleController::class, 'updatePermissions'])->name('update-permissions');
+
     });
+
+    Route::prefix('stocks')->name('stocks.')->group(function () {
+        Route::get('/', [StockController::class, 'index'])->name('index');
+        // Route::get('/{role}', [StockController::class, 'show'])->name('show');
+        Route::get('/create', [StockController::class, 'create'])->name('create');
+        Route::get('/mouvements', [StockController::class, 'mouvements'])->name('mouvements');
+    });
+
+    Route::prefix('demandes-fournitures')->name('demandes-fournitures.')->group(function () {
+        Route::get('/', [DemandeFournitureController::class, 'index'])->name('index');
+        Route::get('/create', [DemandeFournitureController::class, 'create'])->name('create');
+        Route::post('/store', [DemandeFournitureController::class, 'store'])->name('store');
+        // Route::get('/demande', [DemandeFournitureController::class, 'demandes'])->name('demandes');
+    });
+
 });

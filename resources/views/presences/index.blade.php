@@ -19,7 +19,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white p-4 rounded-lg shadow-sm border">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
@@ -31,7 +31,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white p-4 rounded-lg shadow-sm border">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
@@ -43,7 +43,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white p-4 rounded-lg shadow-sm border">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
@@ -55,7 +55,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white p-4 rounded-lg shadow-sm border">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
@@ -67,7 +67,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="bg-white p-4 rounded-lg shadow-sm border">
             <div class="flex items-center">
                 <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-3">
@@ -82,24 +82,38 @@
     </div>
 
     <!-- Filtres et actions -->
-    <div class="bg-white p-6 rounded-lg shadow-sm border">
+    <div class="bg-white p-3 rounded-lg shadow-sm border">
+        <div class="flex space-x-2 mb-3">
+            <a href="{{ route('presences.export') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center">
+                <i class="bx bx-download mr-2"></i>
+                Exporter
+            </a>
+            <a href="{{ route('presences.create') }}"
+                class="bg-anadec-blue text-white px-4 py-2 rounded-lg hover:bg-anadec-dark-blue flex items-center">
+                <i class="bx bx-plus mr-2"></i>
+                Nouvelle Présence
+            </a>
+        </div>
+
         <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+
             <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <form method="GET" class="flex items-center space-x-2">
                     <!-- Date -->
-                    <input type="date" name="date" value="{{ request('date', date('Y-m-d')) }}" 
+                    <input type="date" name="date" value="{{ request('date', date('Y-m-d')) }}"
                            class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-anadec-blue focus:border-anadec-blue">
-                    
+
                     <!-- Recherche -->
                     <div class="relative">
-                        <input type="text" name="search" value="{{ request('search') }}" 
-                               placeholder="Rechercher..." 
+                        <input type="text" name="search" value="{{ request('search') }}"
+                               placeholder="Rechercher..."
                                class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-anadec-blue focus:border-anadec-blue">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
                             <i class="bx bx-search text-gray-400"></i>
                         </div>
                     </div>
-                    
+
                     <!-- Filtre par statut -->
                     <select name="statut" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-anadec-blue focus:border-anadec-blue">
                         <option value="">Tous les statuts</option>
@@ -109,7 +123,7 @@
                         <option value="absence_autorisee" {{ request('statut') == 'absence_autorisee' ? 'selected' : '' }}>Absence autorisée</option>
                         <option value="absent" {{ request('statut') == 'absent' ? 'selected' : '' }}>Absents</option>
                     </select>
-                    
+
                     <!-- Filtre par direction -->
                     <select name="direction" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-anadec-blue focus:border-anadec-blue">
                         <option value="">Toutes les directions</option>
@@ -120,30 +134,18 @@
                         <option value="Direction Administrative" {{ request('direction') == 'Direction Administrative' ? 'selected' : '' }}>Direction Administrative</option>
                         <option value="Direction Commerciale" {{ request('direction') == 'Direction Commerciale' ? 'selected' : '' }}>Direction Commerciale</option>
                     </select>
-                    
+
                     <button type="submit" class="bg-anadec-blue text-white px-4 py-2 rounded-lg hover:bg-anadec-dark-blue">
                         <i class="bx bx-filter-alt mr-1"></i> Filtrer
                     </button>
-                    
-                    @if(request()->hasAny(['search', 'statut', 'direction']) || request('date') != date('Y-m-d'))
+
+                    {{-- @if(request()->hasAny(['search', 'statut', 'direction']) || request('date') != date('Y-m-d')) --}}
+                    @if(request()->hasAny(['search', 'statut', 'direction', 'date']))
                         <a href="{{ route('presences.index') }}" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
                             <i class="bx bx-x mr-1"></i> Effacer
                         </a>
                     @endif
                 </form>
-            </div>
-            
-            <div class="flex space-x-2">
-                <a href="{{ route('presences.export') }}{{ request()->getQueryString() ? '?' . request()->getQueryString() : '' }}" 
-                   class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center">
-                    <i class="bx bx-download mr-2"></i>
-                    Exporter
-                </a>
-                <a href="{{ route('presences.create') }}" 
-                   class="bg-anadec-blue text-white px-4 py-2 rounded-lg hover:bg-anadec-dark-blue flex items-center">
-                    <i class="bx bx-plus mr-2"></i>
-                    Nouvelle Présence
-                </a>
             </div>
         </div>
     </div>
@@ -206,14 +208,14 @@
                             {{ $presence->motif ?: '-' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                            <a href="{{ route('presences.edit', $presence) }}" 
+                            <a href="{{ route('presences.edit', $presence) }}"
                                class="text-yellow-600 hover:text-yellow-800">
                                 <i class="bx bx-edit"></i>
                             </a>
                             <form method="POST" action="{{ route('presences.destroy', $presence) }}" class="inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" 
+                                <button type="submit"
                                         class="text-red-600 hover:text-red-800"
                                         onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette présence ?')">
                                     <i class="bx bx-trash"></i>
@@ -231,7 +233,7 @@
                 </tbody>
             </table>
         </div>
-        
+
         @if($presences->hasPages())
         <div class="bg-white px-4 py-3 border-t border-gray-200">
             {{ $presences->links() }}

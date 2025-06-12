@@ -12,6 +12,7 @@
 
     <!-- Boxicons -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.boxicons.com/fonts/basic/boxicons.min.css' rel='stylesheet'>
 
     <!-- Configuration Tailwind personnalisée -->
     <script>
@@ -77,7 +78,8 @@
                 <!-- Dashboard -->
                 <a href="{{ route('dashboard') }}"
                    class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue {{ request()->routeIs('dashboard') ? 'bg-anadec-light-blue' : '' }}">
-                    <i class="bx bx-home-alt text-xl"></i>
+                    {{-- <i class="bx bx-home-alt text-xl"></i> --}}
+                    <i class='bx bx-dashboard text-xl'></i>
                     <span class="sidebar-text ml-3">Tableau de Bord</span>
                 </a>
 
@@ -245,6 +247,31 @@
                         <a href="{{ route('roles.permissions') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
                             <i class="bx bx-shield text-lg"></i>
                             <span class="sidebar-text ml-3">Matrice Permissions</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Cotation des Agents -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('logistic-submenu')">
+                        <i class="bx bx-box text-xl"></i>
+                        <span class="sidebar-text ml-3">Logistiques & Appro.</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="logistic-submenu" class="ml-4 space-y-1 {{ request()->routeIs('stocks.*') || request()->routeIs('demandes-fournitures.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('stocks.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            {{-- <i class="bx bx-tachometer text-lg"></i> --}}
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Stock</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Demande Fournitures</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouvelle Demande</span>
                         </a>
                     </div>
                 </div>

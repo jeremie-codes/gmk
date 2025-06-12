@@ -24,7 +24,7 @@
                     <div>
                         <label for="agent_id" class="block text-sm font-medium text-gray-700">Agent *</label>
                         <select name="agent_id" id="agent_id" required onchange="calculerSolde()"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             <option value="">Sélectionnez un agent...</option>
                             @foreach($agents as $agent)
                                 <option value="{{ $agent->id }}" {{ old('agent_id') == $agent->id ? 'selected' : '' }}>
@@ -40,7 +40,7 @@
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-700">Type de Congé *</label>
                         <select name="type" id="type" required onchange="toggleSoldeInfo()"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             <option value="">Sélectionnez...</option>
                             <option value="annuel" {{ old('type') == 'annuel' ? 'selected' : '' }}>Congé annuel</option>
                             <option value="maladie" {{ old('type') == 'maladie' ? 'selected' : '' }}>Congé maladie</option>
@@ -60,7 +60,7 @@
                                    value="{{ old('date_debut') }}"
                                    min="{{ date('Y-m-d') }}"
                                    onchange="calculerJours()"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                   class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             @error('date_debut')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -71,7 +71,7 @@
                             <input type="date" name="date_fin" id="date_fin" required
                                    value="{{ old('date_fin') }}"
                                    onchange="calculerJours()"
-                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                                   class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             @error('date_fin')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -81,7 +81,7 @@
                     <div>
                         <label for="motif" class="block text-sm font-medium text-gray-700">Motif *</label>
                         <textarea name="motif" id="motif" rows="4" required
-                                  class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
+                                  class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
                                   placeholder="Décrivez le motif de votre demande de congé...">{{ old('motif') }}</textarea>
                         @error('motif')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -174,195 +174,195 @@
 </div>
 
 <script>
-let soldeAgent = null;
+    let soldeAgent = null;
 
-function calculerSolde() {
-    const agentId = document.getElementById('agent_id').value;
+    function calculerSolde() {
+        const agentId = document.getElementById('agent_id').value;
 
-    if (!agentId) {
-        document.getElementById('solde-info').style.display = 'none';
-        return;
-    }
-
-    fetch(`/conges/agent/${agentId}/solde`)
-        .then(response => response.json())
-        .then(data => {
-            soldeAgent = data;
-            afficherSolde(data);
-            toggleSoldeInfo();
-            validerFormulaire();
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-        });
-}
-
-function afficherSolde(solde) {
-    const soldeDetails = document.getElementById('solde-details');
-
-    if (solde.jours_acquis === 0) {
-        soldeDetails.innerHTML = `
-            <div class="bg-red-100 border border-red-300 rounded p-3">
-                <p class="text-red-800 font-medium">Agent non éligible aux congés annuels</p>
-                <p class="text-red-700 text-xs mt-1">Ancienneté : ${solde.annees_anciennete} an(s) - Minimum requis : 1 an</p>
-            </div>
-        `;
-    } else {
-        soldeDetails.innerHTML = `
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <div class="bg-white rounded p-3 border">
-                    <p class="text-gray-600">Ancienneté</p>
-                    <p class="text-lg font-bold text-gray-900">${solde.annees_anciennete} an(s)</p>
-                </div>
-                <div class="bg-white rounded p-3 border">
-                    <p class="text-gray-600">Exercices</p>
-                    <p class="text-lg font-bold text-blue-600">${solde.nombre_exercices}</p>
-                </div>
-                <div class="bg-white rounded p-3 border">
-                    <p class="text-gray-600">Jours acquis</p>
-                    <p class="text-lg font-bold text-green-600">${solde.jours_acquis}</p>
-                </div>
-                <div class="bg-white rounded p-3 border">
-                    <p class="text-gray-600">Jours restants</p>
-                    <p class="text-lg font-bold text-purple-600">${solde.jours_restants}</p>
-                </div>
-            </div>
-            <div class="mt-3 p-3 bg-blue-100 rounded text-sm">
-                <p class="text-blue-800">
-                    <strong>Calcul :</strong> 30 × ${solde.nombre_exercices} exercices + ${solde.jours_bonus} jours (bonus) = ${solde.jours_acquis} jours
-                </p>
-            </div>
-        `;
-    }
-}
-
-function toggleSoldeInfo() {
-    const type = document.getElementById('type').value;
-    const soldeInfo = document.getElementById('solde-info');
-
-    if (type === 'annuel' && soldeAgent) {
-        soldeInfo.style.display = 'block';
-    } else {
-        soldeInfo.style.display = 'none';
-    }
-}
-
-function calculerJours() {
-    const dateDebut = document.getElementById('date_debut').value;
-    const dateFin = document.getElementById('date_fin').value;
-
-    if (!dateDebut || !dateFin) {
-        document.getElementById('jours-info').style.display = 'none';
-        return;
-    }
-
-    const debut = new Date(dateDebut);
-    const fin = new Date(dateFin);
-
-    if (fin <= debut) {
-        document.getElementById('jours-info').style.display = 'none';
-        return;
-    }
-
-    let jours = 0;
-    const current = new Date(debut);
-
-    while (current <= fin) {
-        // Compter seulement les jours ouvrables (1 = lundi, 5 = vendredi)
-        if (current.getDay() >= 1 && current.getDay() <= 5) {
-            jours++;
+        if (!agentId) {
+            document.getElementById('solde-info').style.display = 'none';
+            return;
         }
-        current.setDate(current.getDate() + 1);
+
+        fetch(`/conges/agent/${agentId}/solde`)
+            .then(response => response.json())
+            .then(data => {
+                soldeAgent = data;
+                afficherSolde(data);
+                toggleSoldeInfo();
+                validerFormulaire();
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
     }
 
-    document.getElementById('nombre-jours').textContent = jours;
-    document.getElementById('jours-info').style.display = 'block';
+    function afficherSolde(solde) {
+        const soldeDetails = document.getElementById('solde-details');
 
-    validerFormulaire();
-}
-
-function validerFormulaire() {
-    const agentId = document.getElementById('agent_id').value;
-    const type = document.getElementById('type').value;
-    const dateDebut = document.getElementById('date_debut').value;
-    const dateFin = document.getElementById('date_fin').value;
-    const motif = document.getElementById('motif').value;
-    const nombreJours = parseInt(document.getElementById('nombre-jours').textContent) || 0;
-
-    const submitBtn = document.getElementById('submit-btn');
-    const validationInfo = document.getElementById('validation-info');
-    const validationDetails = document.getElementById('validation-details');
-
-    let isValid = true;
-    let messages = [];
-
-    // Vérifications de base
-    if (!agentId || !type || !dateDebut || !dateFin || !motif.trim()) {
-        isValid = false;
-        messages.push('Veuillez remplir tous les champs obligatoires');
-    }
-
-    if (nombreJours === 0) {
-        isValid = false;
-        messages.push('La période sélectionnée ne contient aucun jour ouvrable');
-    }
-
-    // Vérification spécifique pour les congés annuels
-    if (type === 'annuel' && soldeAgent) {
-        if (soldeAgent.jours_acquis === 0) {
-            isValid = false;
-            messages.push('Agent non éligible aux congés annuels (moins d\'1 an d\'ancienneté)');
-        } else if (nombreJours > soldeAgent.jours_restants) {
-            isValid = false;
-            messages.push(`Solde insuffisant : ${nombreJours} jours demandés, ${soldeAgent.jours_restants} disponibles`);
+        if (solde.jours_acquis === 0) {
+            soldeDetails.innerHTML = `
+                <div class="bg-red-100 border border-red-300 rounded p-3">
+                    <p class="text-red-800 font-medium">Agent non éligible aux congés annuels</p>
+                    <p class="text-red-700 text-xs mt-1">Ancienneté : ${solde.annees_anciennete} an(s) - Minimum requis : 1 an</p>
+                </div>
+            `;
+        } else {
+            soldeDetails.innerHTML = `
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="bg-white rounded p-3 border">
+                        <p class="text-gray-600">Ancienneté</p>
+                        <p class="text-lg font-bold text-gray-900">${solde.annees_anciennete} an(s)</p>
+                    </div>
+                    <div class="bg-white rounded p-3 border">
+                        <p class="text-gray-600">Exercices</p>
+                        <p class="text-lg font-bold text-blue-600">${solde.nombre_exercices}</p>
+                    </div>
+                    <div class="bg-white rounded p-3 border">
+                        <p class="text-gray-600">Jours acquis</p>
+                        <p class="text-lg font-bold text-green-600">${solde.jours_acquis}</p>
+                    </div>
+                    <div class="bg-white rounded p-3 border">
+                        <p class="text-gray-600">Jours restants</p>
+                        <p class="text-lg font-bold text-purple-600">${solde.jours_restants}</p>
+                    </div>
+                </div>
+                <div class="mt-3 p-3 bg-blue-100 rounded text-sm">
+                    <p class="text-blue-800">
+                        <strong>Calcul :</strong> 30 × ${solde.nombre_exercices} exercices + ${solde.jours_bonus} jours (bonus) = ${solde.jours_acquis} jours
+                    </p>
+                </div>
+            `;
         }
     }
 
-    // Afficher les messages de validation
-    if (messages.length > 0) {
-        validationInfo.className = 'bg-red-50 border border-red-200 rounded-lg p-4';
-        validationInfo.querySelector('i').className = 'bx bx-error mr-2 text-red-600';
-        validationInfo.querySelector('h4').className = 'text-sm font-medium text-red-900 mb-2 flex items-center';
-        validationDetails.innerHTML = messages.map(msg =>
-            `<div class="flex items-start text-red-800">
-                <i class="bx bx-x text-red-600 mr-2 mt-0.5"></i>
-                <span>${msg}</span>
-            </div>`
-        ).join('');
-        validationInfo.style.display = 'block';
-    } else if (agentId && type && dateDebut && dateFin && motif.trim() && nombreJours > 0) {
-        validationInfo.className = 'bg-green-50 border border-green-200 rounded-lg p-4';
-        validationInfo.querySelector('i').className = 'bx bx-check-circle mr-2 text-green-600';
-        validationInfo.querySelector('h4').className = 'text-sm font-medium text-green-900 mb-2 flex items-center';
-        validationDetails.innerHTML = `
-            <div class="flex items-start text-green-800">
-                <i class="bx bx-check text-green-600 mr-2 mt-0.5"></i>
-                <span>Demande valide - Prête à être soumise</span>
-            </div>
-        `;
-        validationInfo.style.display = 'block';
-    } else {
-        validationInfo.style.display = 'none';
+    function toggleSoldeInfo() {
+        const type = document.getElementById('type').value;
+        const soldeInfo = document.getElementById('solde-info');
+
+        if (type === 'annuel' && soldeAgent) {
+            soldeInfo.style.display = 'block';
+        } else {
+            soldeInfo.style.display = 'none';
+        }
     }
 
-    submitBtn.disabled = !isValid;
-}
+    function calculerJours() {
+        const dateDebut = document.getElementById('date_debut').value;
+        const dateFin = document.getElementById('date_fin').value;
 
-// Initialiser les événements
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('agent_id').addEventListener('change', calculerSolde);
-    document.getElementById('type').addEventListener('change', toggleSoldeInfo);
-    document.getElementById('date_debut').addEventListener('change', calculerJours);
-    document.getElementById('date_fin').addEventListener('change', calculerJours);
-    document.getElementById('motif').addEventListener('input', validerFormulaire);
+        if (!dateDebut || !dateFin) {
+            document.getElementById('jours-info').style.display = 'none';
+            return;
+        }
 
-    // Calculer si des valeurs sont déjà présentes
-    if (document.getElementById('agent_id').value) {
-        calculerSolde();
+        const debut = new Date(dateDebut);
+        const fin = new Date(dateFin);
+
+        if (fin <= debut) {
+            document.getElementById('jours-info').style.display = 'none';
+            return;
+        }
+
+        let jours = 0;
+        const current = new Date(debut);
+
+        while (current <= fin) {
+            // Compter seulement les jours ouvrables (1 = lundi, 5 = vendredi)
+            if (current.getDay() >= 1 && current.getDay() <= 5) {
+                jours++;
+            }
+            current.setDate(current.getDate() + 1);
+        }
+
+        document.getElementById('nombre-jours').textContent = jours;
+        document.getElementById('jours-info').style.display = 'block';
+
+        validerFormulaire();
     }
-    if (document.getElementById('date_debut').value && document.getElementById('date_fin').value) {
-        calculerJours();
+
+    function validerFormulaire() {
+        const agentId = document.getElementById('agent_id').value;
+        const type = document.getElementById('type').value;
+        const dateDebut = document.getElementById('date_debut').value;
+        const dateFin = document.getElementById('date_fin').value;
+        const motif = document.getElementById('motif').value;
+        const nombreJours = parseInt(document.getElementById('nombre-jours').textContent) || 0;
+
+        const submitBtn = document.getElementById('submit-btn');
+        const validationInfo = document.getElementById('validation-info');
+        const validationDetails = document.getElementById('validation-details');
+
+        let isValid = true;
+        let messages = [];
+
+        // Vérifications de base
+        if (!agentId || !type || !dateDebut || !dateFin || !motif.trim()) {
+            isValid = false;
+            messages.push('Veuillez remplir tous les champs obligatoires');
+        }
+
+        if (nombreJours === 0) {
+            isValid = false;
+            messages.push('La période sélectionnée ne contient aucun jour ouvrable');
+        }
+
+        // Vérification spécifique pour les congés annuels
+        if (type === 'annuel' && soldeAgent) {
+            if (soldeAgent.jours_acquis === 0) {
+                isValid = false;
+                messages.push('Agent non éligible aux congés annuels (moins d\'1 an d\'ancienneté)');
+            } else if (nombreJours > soldeAgent.jours_restants) {
+                isValid = false;
+                messages.push(`Solde insuffisant : ${nombreJours} jours demandés, ${soldeAgent.jours_restants} disponibles`);
+            }
+        }
+
+        // Afficher les messages de validation
+        if (messages.length > 0) {
+            validationInfo.className = 'bg-red-50 border border-red-200 rounded-lg p-4';
+            validationInfo.querySelector('i').className = 'bx bx-error mr-2 text-red-600';
+            validationInfo.querySelector('h4').className = 'text-sm font-medium text-red-900 mb-2 flex items-center';
+            validationDetails.innerHTML = messages.map(msg =>
+                `<div class="flex items-start text-red-800">
+                    <i class="bx bx-x text-red-600 mr-2 mt-0.5"></i>
+                    <span>${msg}</span>
+                </div>`
+            ).join('');
+            validationInfo.style.display = 'block';
+        } else if (agentId && type && dateDebut && dateFin && motif.trim() && nombreJours > 0) {
+            validationInfo.className = 'bg-green-50 border border-green-200 rounded-lg p-4';
+            validationInfo.querySelector('i').className = 'bx bx-check-circle mr-2 text-green-600';
+            validationInfo.querySelector('h4').className = 'text-sm font-medium text-green-900 mb-2 flex items-center';
+            validationDetails.innerHTML = `
+                <div class="flex items-start text-green-800">
+                    <i class="bx bx-check text-green-600 mr-2 mt-0.5"></i>
+                    <span>Demande valide - Prête à être soumise</span>
+                </div>
+            `;
+            validationInfo.style.display = 'block';
+        } else {
+            validationInfo.style.display = 'none';
+        }
+
+        submitBtn.disabled = !isValid;
     }
-});
+
+    // Initialiser les événements
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('agent_id').addEventListener('change', calculerSolde);
+        document.getElementById('type').addEventListener('change', toggleSoldeInfo);
+        document.getElementById('date_debut').addEventListener('change', calculerJours);
+        document.getElementById('date_fin').addEventListener('change', calculerJours);
+        document.getElementById('motif').addEventListener('input', validerFormulaire);
+
+        // Calculer si des valeurs sont déjà présentes
+        if (document.getElementById('agent_id').value) {
+            calculerSolde();
+        }
+        if (document.getElementById('date_debut').value && document.getElementById('date_fin').value) {
+            calculerJours();
+        }
+    });
 </script>
 @endsection

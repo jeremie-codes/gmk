@@ -67,14 +67,14 @@ class Role extends Model
             'agents.edit' => 'Modifier les agents',
             'agents.delete' => 'Supprimer les agents',
             'agents.export' => 'Exporter les agents',
-            
+
             // Gestion des présences
             'presences.view' => 'Voir les présences',
             'presences.create' => 'Créer des présences',
             'presences.edit' => 'Modifier les présences',
             'presences.delete' => 'Supprimer les présences',
             'presences.export' => 'Exporter les présences',
-            
+
             // Gestion des congés
             'conges.view' => 'Voir les congés',
             'conges.create' => 'Créer des demandes de congé',
@@ -84,14 +84,14 @@ class Role extends Model
             'conges.validate_drh' => 'Valider en tant que DRH',
             'conges.view_all' => 'Voir tous les congés',
             'conges.view_own' => 'Voir ses propres congés',
-            
+
             // Cotation des agents
             'cotations.view' => 'Voir les cotations',
             'cotations.create' => 'Créer des cotations',
             'cotations.edit' => 'Modifier les cotations',
             'cotations.delete' => 'Supprimer les cotations',
             'cotations.generate' => 'Générer des cotations automatiques',
-            
+
             // Gestion des utilisateurs et rôles
             'users.view' => 'Voir les utilisateurs',
             'users.create' => 'Créer des utilisateurs',
@@ -99,12 +99,12 @@ class Role extends Model
             'users.delete' => 'Supprimer les utilisateurs',
             'roles.view' => 'Voir les rôles',
             'roles.edit' => 'Modifier les rôles et permissions',
-            
+
             // Rapports et statistiques
             'reports.view' => 'Voir les rapports',
             'reports.export' => 'Exporter les rapports',
             'dashboard.view' => 'Accéder au tableau de bord',
-            
+
             // Administration système
             'system.settings' => 'Paramètres système',
             'system.backup' => 'Sauvegarde système',
@@ -280,9 +280,9 @@ class Role extends Model
             'agent' => 'bx-user',
             'responsable_service' => 'bx-user-check',
             'sous_directeur' => 'bx-user-voice',
-            'directeur' => 'bx-crown',
+            'directeur' => 'bx-shield',
             'rh' => 'bx-group',
-            'drh' => 'bx-shield-check',
+            'drh' => 'bx-crown',
             default => 'bx-user',
         };
     }
