@@ -49,7 +49,7 @@ class PaiementController extends Controller
             });
         }
 
-        $paiements = $query->orderBy('created_at', 'desc')->paginate(20);
+        $paiements = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -408,7 +408,7 @@ class PaiementController extends Controller
             });
         }
 
-        $paiements = $query->orderBy('created_at')->paginate(20);
+        $paiements = $query->orderBy('created_at')->paginate(10);
 
         return view('paiements.validation', compact('paiements'));
     }
@@ -425,7 +425,7 @@ class PaiementController extends Controller
             });
         }
 
-        $paiements = $query->orderBy('date_validation')->paginate(20);
+        $paiements = $query->orderBy('date_validation')->paginate(10);
 
         return view('paiements.paiement', compact('paiements'));
     }
@@ -477,7 +477,7 @@ class PaiementController extends Controller
             $query->where('annee_concernee', $request->annee);
         }
 
-        $paiements = $query->orderBy('date_paiement', 'desc')->paginate(20);
+        $paiements = $query->orderBy('date_paiement', 'desc')->paginate(10);
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
 
         return view('paiements.fiches-paie', compact('paiements', 'agents'));
@@ -501,7 +501,7 @@ class PaiementController extends Controller
         $paiements = Paiement::where('agent_id', $user->agent->id)
             ->where('statut', 'paye')
             ->orderBy('date_paiement', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('paiements.mes-paiements', compact('paiements'));
     }

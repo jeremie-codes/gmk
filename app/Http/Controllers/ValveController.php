@@ -44,7 +44,7 @@ class ValveController extends Controller
             });
         }
 
-        $valves = $query->orderBy('created_at', 'desc')->paginate(20);
+        $valves = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [

@@ -51,7 +51,7 @@ class CourrierController extends Controller
             });
         }
 
-        $courriers = $query->orderBy('created_at', 'desc')->paginate(20);
+        $courriers = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -415,7 +415,7 @@ class CourrierController extends Controller
             });
         }
 
-        $courriers = $query->orderBy('created_at', 'desc')->paginate(20);
+        $courriers = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('courriers.entrants', compact('courriers'));
     }
@@ -445,7 +445,7 @@ class CourrierController extends Controller
             });
         }
 
-        $courriers = $query->orderBy('created_at', 'desc')->paginate(20);
+        $courriers = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('courriers.sortants', compact('courriers'));
     }
@@ -476,7 +476,7 @@ class CourrierController extends Controller
             });
         }
 
-        $courriers = $query->orderBy('created_at', 'desc')->paginate(20);
+        $courriers = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('courriers.internes', compact('courriers'));
     }
@@ -509,7 +509,7 @@ class CourrierController extends Controller
 
         $courriers = $query->orderBy('priorite', 'desc')
                           ->orderBy('date_reception')
-                          ->paginate(20);
+                          ->paginate(10);
 
         return view('courriers.non-traites', compact('courriers'));
     }
@@ -535,7 +535,7 @@ class CourrierController extends Controller
             });
         }
 
-        $courriers = $query->orderBy('created_at', 'desc')->paginate(20);
+        $courriers = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('courriers.archives', compact('courriers'));
     }

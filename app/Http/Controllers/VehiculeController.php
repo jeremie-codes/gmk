@@ -38,7 +38,7 @@ class VehiculeController extends Controller
             });
         }
 
-        $vehicules = $query->orderBy('immatriculation')->paginate(20);
+        $vehicules = $query->orderBy('immatriculation')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -249,7 +249,7 @@ class VehiculeController extends Controller
     {
         $maintenances = $vehicule->maintenances()
             ->orderBy('date_maintenance', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('vehicules.maintenance', compact('vehicule', 'maintenances'));
     }

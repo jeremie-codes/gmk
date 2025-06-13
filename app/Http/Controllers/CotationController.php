@@ -44,7 +44,7 @@ class CotationController extends Controller
             });
         }
 
-        $cotations = $query->orderBy('score_global', 'desc')->paginate(20);
+        $cotations = $query->orderBy('score_global', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [

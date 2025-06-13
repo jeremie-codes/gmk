@@ -20,7 +20,7 @@ class UserController extends Controller
 
         $users = User::with('service')
             ->orderBy('name')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('users.index', compact('users', 'stats'));
     }

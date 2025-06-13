@@ -52,7 +52,7 @@ class DemandeVehiculeController extends Controller
             });
         }
 
-        $demandes = $query->orderBy('created_at', 'desc')->paginate(20);
+        $demandes = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -244,7 +244,7 @@ class DemandeVehiculeController extends Controller
 
         $demandes = $query->orderBy('urgence', 'desc')
                          ->orderBy('created_at')
-                         ->paginate(20);
+                         ->paginate(10);
 
         return view('demandes-vehicules.approbation', compact('demandes'));
     }
@@ -289,7 +289,7 @@ class DemandeVehiculeController extends Controller
 
         $demandes = $query->orderBy('urgence', 'desc')
                          ->orderBy('date_heure_sortie')
-                         ->paginate(20);
+                         ->paginate(10);
 
         // Véhicules disponibles
         $vehicules = Vehicule::disponible()->get();
@@ -355,7 +355,7 @@ class DemandeVehiculeController extends Controller
         $demandes = DemandeVehicule::where('agent_id', $user->agent->id)
             ->with(['vehicule', 'chauffeur'])
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('demandes-vehicules.mes-demandes', compact('demandes'));
     }

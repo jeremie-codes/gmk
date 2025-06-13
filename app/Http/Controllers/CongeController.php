@@ -50,7 +50,7 @@ class CongeController extends Controller
             });
         }
 
-        $conges = $query->orderBy('created_at', 'desc')->paginate(20);
+        $conges = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -289,7 +289,7 @@ class CongeController extends Controller
             });
         }
 
-        $conges = $query->orderBy('created_at')->paginate(20);
+        $conges = $query->orderBy('created_at')->paginate(10);
 
         return view('conges.approbation-directeur', compact('conges'));
     }
@@ -341,7 +341,7 @@ class CongeController extends Controller
             });
         }
 
-        $conges = $query->orderBy('date_approbation_directeur')->paginate(20);
+        $conges = $query->orderBy('date_approbation_directeur')->paginate(10);
 
         return view('conges.validation-drh', compact('conges'));
     }
@@ -395,7 +395,7 @@ class CongeController extends Controller
 
         $conges = Conge::where('agent_id', $user->agent->id)
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
         // Calculer le solde
         $solde = SoldeConge::calculerSolde($user->agent);

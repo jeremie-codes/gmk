@@ -34,7 +34,7 @@ class StockController extends Controller
             });
         }
 
-        $stocks = $query->orderBy('nom_article')->paginate(20);
+        $stocks = $query->orderBy('nom_article')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -260,7 +260,7 @@ class StockController extends Controller
             $query->whereDate('created_at', '<=', $request->date_fin);
         }
 
-        $mouvements = $query->orderBy('created_at', 'desc')->paginate(20);
+        $mouvements = $query->orderBy('created_at', 'desc')->paginate(10);
 
         $stocks = Stock::orderBy('nom_article')->get();
 

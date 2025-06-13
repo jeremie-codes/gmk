@@ -51,7 +51,7 @@ class DemandeFournitureController extends Controller
             });
         }
 
-        $demandes = $query->orderBy('created_at', 'desc')->paginate(20);
+        $demandes = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [
@@ -241,7 +241,7 @@ class DemandeFournitureController extends Controller
 
         $demandes = $query->orderBy('urgence', 'desc')
                          ->orderBy('created_at')
-                         ->paginate(20);
+                         ->paginate(10);
 
         return view('demandes-fournitures.approbation', compact('demandes'));
     }
@@ -306,7 +306,7 @@ class DemandeFournitureController extends Controller
 
         $demandes = DemandeFourniture::where('agent_id', $user->agent->id)
             ->orderBy('created_at', 'desc')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('demandes-fournitures.mes-demandes', compact('demandes'));
     }

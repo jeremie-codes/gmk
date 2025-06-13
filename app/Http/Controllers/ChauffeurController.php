@@ -37,7 +37,7 @@ class ChauffeurController extends Controller
             })->orWhere('numero_permis', 'like', "%{$search}%");
         }
 
-        $chauffeurs = $query->orderBy('created_at', 'desc')->paginate(20);
+        $chauffeurs = $query->orderBy('created_at', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [

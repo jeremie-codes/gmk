@@ -47,7 +47,7 @@ class VisitorController extends Controller
             });
         }
 
-        $visitors = $query->orderBy('heure_arrivee', 'desc')->paginate(20);
+        $visitors = $query->orderBy('heure_arrivee', 'desc')->paginate(10);
 
         // Statistiques
         $stats = [

@@ -86,7 +86,7 @@ class RoleController extends Controller
             }
         }
 
-        $users = $query->orderBy('name')->paginate(20);
+        $users = $query->orderBy('name')->paginate(10);
         $roles = Role::where('is_active', true)->withCount('users')->orderBy('display_name')->get();
 
         return view('roles.users', compact('users', 'roles'));
