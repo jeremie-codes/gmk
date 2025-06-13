@@ -121,6 +121,7 @@ class DemandeFournitureController extends Controller
     public function create()
     {
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
+        $articles = Stock::orderBy('nom_article')->get();
 
         // Directions et services prédéfinis
         $directions = [
@@ -132,7 +133,7 @@ class DemandeFournitureController extends Controller
             'Direction Commerciale'
         ];
 
-        return view('demandes-fournitures.create', compact('agents', 'directions'));
+        return view('demandes-fournitures.create', compact('agents', 'directions', 'articles'));
     }
 
     public function store(Request $request)
@@ -141,6 +142,7 @@ class DemandeFournitureController extends Controller
             'agent_id' => 'required|exists:agents,id',
             'direction' => 'required|string|max:255',
             'service' => 'required|string|max:255',
+            'article_id' => 'nullable|exists:stocks,id',
             'besoin' => 'required|string|max:1000',
             'quantite' => 'required|integer|min:1',
             'unite' => 'required|string|max:50',
@@ -169,6 +171,7 @@ class DemandeFournitureController extends Controller
         }
 
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
+        $articles = Stock::orderBy('nom_article')->get();
 
         $directions = [
             'Direction Générale',
@@ -179,7 +182,7 @@ class DemandeFournitureController extends Controller
             'Direction Commerciale'
         ];
 
-        return view('demandes-fournitures.edit', compact('demandeFourniture', 'agents', 'directions'));
+        return view('demandes-fournitures.edit', compact('demandeFourniture', 'agents', 'directions', 'articles'));
     }
 
     public function update(Request $request, DemandeFourniture $demandeFourniture)
@@ -193,6 +196,7 @@ class DemandeFournitureController extends Controller
             'agent_id' => 'required|exists:agents,id',
             'direction' => 'required|string|max:255',
             'service' => 'required|string|max:255',
+            'article_id' => 'nullable|exists:stocks,id',
             'besoin' => 'required|string|max:1000',
             'quantite' => 'required|integer|min:1',
             'unite' => 'required|string|max:50',

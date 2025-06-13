@@ -74,11 +74,18 @@
             </div>
 
             <!-- Navigation -->
-            <nav class="flex-1 px-2 py-4 space-y-2">
+            <nav class="flex-1 px-2 py-4 space-y-2 overflow-y-auto
+                    [&::-webkit-scrollbar]:w-1
+                    [&::-webkit-scrollbar-track]:rounded-full
+                    [&::-webkit-scrollbar-track]:bg-blue-100
+                    [&::-webkit-scrollbar-thumb]:rounded-full
+                    [&::-webkit-scrollbar-thumb]:bg-blue-300
+                    dark:[&::-webkit-scrollbar-track]:bg-blue-700
+                    dark:[&::-webkit-scrollbar-thumb]:bg-blue-500"
+                    >
                 <!-- Dashboard -->
                 <a href="{{ route('dashboard') }}"
                    class="flex items-center px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue {{ request()->routeIs('dashboard') ? 'bg-anadec-light-blue' : '' }}">
-                    {{-- <i class="bx bx-home-alt text-xl"></i> --}}
                     <i class='bx bx-dashboard text-xl'></i>
                     <span class="sidebar-text ml-3">Tableau de Bord</span>
                 </a>
@@ -227,6 +234,222 @@
                     </div>
                 </div>
 
+                <!-- Logistique et Approvisionnement -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('logistic-submenu')">
+                        <i class="bx bx-box text-xl"></i>
+                        <span class="sidebar-text ml-3">Logistique & Appro.</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="logistic-submenu" class="ml-4 space-y-1 {{ request()->routeIs('stocks.*') || request()->routeIs('demandes-fournitures.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('stocks.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard Stock</span>
+                        </a>
+                        <a href="{{ route('stocks.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-package text-lg"></i>
+                            <span class="sidebar-text ml-3">Gestion Stock</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard Demandes</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-clipboard text-lg"></i>
+                            <span class="sidebar-text ml-3">Demandes Fournitures</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouvelle Demande</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.approbation') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-check text-lg"></i>
+                            <span class="sidebar-text ml-3">Approbation</span>
+                        </a>
+                        <a href="{{ route('demandes-fournitures.mes-demandes') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user text-lg"></i>
+                            <span class="sidebar-text ml-3">Mes Demandes</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Charroi Automobile -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('charroi-submenu')">
+                        <i class="bx bx-car text-xl"></i>
+                        <span class="sidebar-text ml-3">Charroi Automobile</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="charroi-submenu" class="ml-4 space-y-1 {{ request()->routeIs('vehicules.*') || request()->routeIs('chauffeurs.*') || request()->routeIs('demandes-vehicules.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('vehicules.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard Charroi</span>
+                        </a>
+                        <a href="{{ route('vehicules.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-car text-lg"></i>
+                            <span class="sidebar-text ml-3">Gestion Véhicules</span>
+                        </a>
+                        <a href="{{ route('chauffeurs.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user-voice text-lg"></i>
+                            <span class="sidebar-text ml-3">Gestion Chauffeurs</span>
+                        </a>
+                        <a href="{{ route('demandes-vehicules.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard Demandes</span>
+                        </a>
+                        <a href="{{ route('demandes-vehicules.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Demandes Véhicules</span>
+                        </a>
+                        <a href="{{ route('demandes-vehicules.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouvelle Demande</span>
+                        </a>
+                        <a href="{{ route('demandes-vehicules.approbation') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-check text-lg"></i>
+                            <span class="sidebar-text ml-3">Approbation</span>
+                        </a>
+                        <a href="{{ route('demandes-vehicules.affectation') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-transfer-alt text-lg"></i>
+                            <span class="sidebar-text ml-3">Affectation</span>
+                        </a>
+                        <a href="{{ route('demandes-vehicules.mes-demandes') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user text-lg"></i>
+                            <span class="sidebar-text ml-3">Mes Demandes</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Gestion des Paiements -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('paiements-submenu')">
+                        <i class="bx bx-money text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Paiements</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="paiements-submenu" class="ml-4 space-y-1 {{ request()->routeIs('paiements.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('paiements.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard</span>
+                        </a>
+                        <a href="{{ route('paiements.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Générale</span>
+                        </a>
+                        <a href="{{ route('paiements.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouveau Paiement</span>
+                        </a>
+                        <a href="{{ route('paiements.validation') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-check text-lg"></i>
+                            <span class="sidebar-text ml-3">Validation</span>
+                        </a>
+                        <a href="{{ route('paiements.paiement') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-dollar text-lg"></i>
+                            <span class="sidebar-text ml-3">Paiement</span>
+                        </a>
+                        <a href="{{ route('paiements.fiches-paie') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-file text-lg"></i>
+                            <span class="sidebar-text ml-3">Fiches de Paie</span>
+                        </a>
+                        <a href="{{ route('paiements.mes-paiements') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-user text-lg"></i>
+                            <span class="sidebar-text ml-3">Mes Paiements</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Gestion des Courriers -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('courriers-submenu')">
+                        <i class="bx bx-envelope text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Courriers</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="courriers-submenu" class="ml-4 space-y-1 {{ request()->routeIs('courriers.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('courriers.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard</span>
+                        </a>
+                        <a href="{{ route('courriers.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste Générale</span>
+                        </a>
+                        <a href="{{ route('courriers.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouveau Courrier</span>
+                        </a>
+                        <a href="{{ route('courriers.entrants') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-log-in text-lg"></i>
+                            <span class="sidebar-text ml-3">Courriers Entrants</span>
+                        </a>
+                        <a href="{{ route('courriers.sortants') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-log-out text-lg"></i>
+                            <span class="sidebar-text ml-3">Courriers Sortants</span>
+                        </a>
+                        <a href="{{ route('courriers.internes') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-transfer text-lg"></i>
+                            <span class="sidebar-text ml-3">Courriers Internes</span>
+                        </a>
+                        <a href="{{ route('courriers.non-traites') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-time-five text-lg"></i>
+                            <span class="sidebar-text ml-3">Non Traités</span>
+                        </a>
+                        <a href="{{ route('courriers.archives') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-archive text-lg"></i>
+                            <span class="sidebar-text ml-3">Archives</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Gestion des Visiteurs -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('visitors-submenu')">
+                        <i class="bx bx-user-voice text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Visiteurs</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="visitors-submenu" class="ml-4 space-y-1 {{ request()->routeIs('visitors.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('visitors.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste des Visiteurs</span>
+                        </a>
+                        <a href="{{ route('visitors.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouveau Visiteur</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Gestion des Communiqués -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('valves-submenu')">
+                        <i class="bx bx-megaphone text-xl"></i>
+                        <span class="sidebar-text ml-3">Gestion des Communiqués</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="valves-submenu" class="ml-4 space-y-1 {{ request()->routeIs('valves.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('valves.dashboard') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-tachometer text-lg"></i>
+                            <span class="sidebar-text ml-3">Dashboard</span>
+                        </a>
+                        <a href="{{ route('valves.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-list-ul text-lg"></i>
+                            <span class="sidebar-text ml-3">Liste des Communiqués</span>
+                        </a>
+                        <a href="{{ route('valves.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-plus text-lg"></i>
+                            <span class="sidebar-text ml-3">Nouveau Communiqué</span>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Gestion des Rôles et Permissions -->
                 <div class="space-y-1">
                     <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
@@ -247,31 +470,6 @@
                         <a href="{{ route('roles.permissions') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
                             <i class="bx bx-shield text-lg"></i>
                             <span class="sidebar-text ml-3">Matrice Permissions</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Cotation des Agents -->
-                <div class="space-y-1">
-                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
-                            onclick="toggleSubmenu('logistic-submenu')">
-                        <i class="bx bx-box text-xl"></i>
-                        <span class="sidebar-text ml-3">Logistiques & Appro.</span>
-                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
-                    </button>
-                    <div id="logistic-submenu" class="ml-4 space-y-1 {{ request()->routeIs('stocks.*') || request()->routeIs('demandes-fournitures.*') ? '' : 'hidden' }}">
-                        <a href="{{ route('stocks.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
-                            {{-- <i class="bx bx-tachometer text-lg"></i> --}}
-                            <i class="bx bx-tachometer text-lg"></i>
-                            <span class="sidebar-text ml-3">Liste Stock</span>
-                        </a>
-                        <a href="{{ route('demandes-fournitures.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
-                            <i class="bx bx-tachometer text-lg"></i>
-                            <span class="sidebar-text ml-3">Demande Fournitures</span>
-                        </a>
-                        <a href="{{ route('demandes-fournitures.create') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
-                            <i class="bx bx-plus text-lg"></i>
-                            <span class="sidebar-text ml-3">Nouvelle Demande</span>
                         </a>
                     </div>
                 </div>

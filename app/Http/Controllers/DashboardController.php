@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agent;
 use App\Models\Presence;
+use App\Models\Valve;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -15,7 +16,7 @@ class DashboardController extends Controller
         $totalAgents = Agent::where('statut', 'actif')->count();
         $totalRetraites = Agent::where('statut', 'retraite')->count();
         $totalMalades = Agent::where('statut', 'malade')->count();
-        
+
         // Présences du jour
         $today = Carbon::today();
         $presencesToday = Presence::whereDate('date', $today)->count();
@@ -28,7 +29,7 @@ class DashboardController extends Controller
         $absentsToday = Presence::whereDate('date', $today)
             ->where('statut', 'absent')
             ->count();
-        
+
         // Statistiques par direction (exemple)
         $directions = [
             'Direction Générale' => [
@@ -53,7 +54,7 @@ class DashboardController extends Controller
                     })->where('statut', 'present')->count()
             ]
         ];
-        
+
         // Graphique des présences de la semaine
         $weekPresences = [];
         for ($i = 6; $i >= 0; $i--) {
@@ -64,17 +65,25 @@ class DashboardController extends Controller
                 'absents' => Presence::whereDate('date', $date)->where('statut', 'absent')->count()
             ];
         }
-        
+
+        // Récupérer les communiqués actifs pour la valve
+        $communiques = Valve::enCours()
+            ->orderByRaw("FIELD(priorite, 'urgente', 'haute', 'normale', 'basse')")
+            ->orderBy('date_debut', 'desc')
+            ->take(3)
+            ->get();
+
         return view('dashboard', compact(
             'totalAgents',
-            'totalRetraites', 
+            'totalRetraites',
             'totalMalades',
             'presencesToday',
             'presentsToday',
             'retardsToday',
             'absentsToday',
             'directions',
-            'weekPresences'
+            'weekPresences',
+            'communiques'
         ));
     }
 }

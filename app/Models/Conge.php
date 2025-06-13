@@ -16,6 +16,7 @@ class Conge extends Model
         'date_fin',
         'nombre_jours',
         'motif',
+        'justificatif',
         'type',
         'statut',
         'commentaire_directeur',
@@ -107,6 +108,19 @@ class Conge extends Model
         };
     }
 
+    public function getJustificatifUrlAttribute()
+    {
+        if ($this->justificatif && file_exists(public_path('storage/' . $this->justificatif))) {
+            return asset('storage/' . $this->justificatif);
+        }
+        return null;
+    }
+
+    public function hasJustificatif()
+    {
+        return $this->justificatif && file_exists(public_path('storage/' . $this->justificatif));
+    }
+
     // Scopes
     public function scopeEnAttente($query)
     {
@@ -140,10 +154,10 @@ class Conge extends Model
     {
         $debut = Carbon::parse($dateDebut);
         $fin = Carbon::parse($dateFin);
-        
+
         $jours = 0;
         $current = $debut->copy();
-        
+
         while ($current->lte($fin)) {
             // Ne compter que les jours ouvrables (lundi à vendredi)
             if ($current->isWeekday()) {
@@ -151,20 +165,20 @@ class Conge extends Model
             }
             $current->addDay();
         }
-        
+
         return $jours;
     }
 
     public function estEnCours()
     {
-        return $this->statut === 'valide_drh' 
-            && $this->date_debut <= now() 
+        return $this->statut === 'valide_drh'
+            && $this->date_debut <= now()
             && $this->date_fin >= now();
     }
 
     public function peutEtreModifie()
     {
-        return $this->statut === 'en_attente';
+        return $this->statut === 'approuve_directeur';
     }
 
     public function peutEtreApprouveParDirecteur()

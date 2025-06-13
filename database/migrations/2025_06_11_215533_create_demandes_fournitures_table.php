@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('demande_fournitures', function (Blueprint $table) {
             $table->id();
             $table->foreignId('agent_id')->constrained()->onDelete('cascade');
+            $table->foreignId('article_id')->nullable()->constrained('stocks')->onDelete('set null');
             $table->string('direction');
             $table->string('service');
             $table->text('besoin');

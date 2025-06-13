@@ -62,6 +62,11 @@ class Agent extends Model
         return $this->belongsTo(User::class);
     }
 
+     public function chauffeur()
+    {
+        return $this->hasOne(Chauffeur::class);
+    }
+
     public function presences()
     {
         return $this->hasMany(Presence::class);

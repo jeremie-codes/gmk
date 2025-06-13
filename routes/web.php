@@ -9,6 +9,13 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DemandeFournitureController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\VehiculeController;
+use App\Http\Controllers\ChauffeurController;
+use App\Http\Controllers\DemandeVehiculeController;
+use App\Http\Controllers\PaiementController;
+use App\Http\Controllers\CourrierController;
+use App\Http\Controllers\VisitorController;
+use App\Http\Controllers\ValveController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StockController;
 /*
@@ -135,18 +142,197 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    // Module Gestion du Stock
     Route::prefix('stocks')->name('stocks.')->group(function () {
         Route::get('/', [StockController::class, 'index'])->name('index');
-        // Route::get('/{role}', [StockController::class, 'show'])->name('show');
+        Route::get('/dashboard', [StockController::class, 'dashboard'])->name('dashboard');
         Route::get('/create', [StockController::class, 'create'])->name('create');
-        Route::get('/mouvements', [StockController::class, 'mouvements'])->name('mouvements');
+        Route::post('/', [StockController::class, 'store'])->name('store');
+        Route::get('/{stock}', [StockController::class, 'show'])->name('show');
+        Route::get('/{stock}/edit', [StockController::class, 'edit'])->name('edit');
+        Route::put('/{stock}', [StockController::class, 'update'])->name('update');
+        Route::delete('/{stock}', [StockController::class, 'destroy'])->name('destroy');
+
+        // Gestion des mouvements de stock
+        Route::post('/{stock}/ajouter', [StockController::class, 'ajouterStock'])->name('ajouter');
+        Route::post('/{stock}/retirer', [StockController::class, 'retirerStock'])->name('retirer');
+        Route::get('/mouvements/list', [StockController::class, 'mouvements'])->name('mouvements');
     });
 
+    // Module Demandes de Fournitures
     Route::prefix('demandes-fournitures')->name('demandes-fournitures.')->group(function () {
         Route::get('/', [DemandeFournitureController::class, 'index'])->name('index');
+        Route::get('/dashboard', [DemandeFournitureController::class, 'dashboard'])->name('dashboard');
         Route::get('/create', [DemandeFournitureController::class, 'create'])->name('create');
-        Route::post('/store', [DemandeFournitureController::class, 'store'])->name('store');
-        // Route::get('/demande', [DemandeFournitureController::class, 'demandes'])->name('demandes');
+        Route::post('/', [DemandeFournitureController::class, 'store'])->name('store');
+        Route::get('/{demandeFourniture}', [DemandeFournitureController::class, 'show'])->name('show');
+        Route::get('/{demandeFourniture}/edit', [DemandeFournitureController::class, 'edit'])->name('edit');
+        Route::put('/{demandeFourniture}', [DemandeFournitureController::class, 'update'])->name('update');
+        Route::delete('/{demandeFourniture}', [DemandeFournitureController::class, 'destroy'])->name('destroy');
+
+        // Interface d'approbation
+        Route::get('/approbation/list', [DemandeFournitureController::class, 'approbation'])->name('approbation');
+        Route::post('/{demandeFourniture}/approuver', [DemandeFournitureController::class, 'approuver'])->name('approuver');
+        Route::post('/{demandeFourniture}/livrer', [DemandeFournitureController::class, 'livrer'])->name('livrer');
+
+        // Interface agent
+        Route::get('/mes-demandes/list', [DemandeFournitureController::class, 'mesDemandes'])->name('mes-demandes');
     });
 
+    // Module Gestion du Charroi Automobile
+
+    // Gestion des véhicules
+    Route::prefix('vehicules')->name('vehicules.')->group(function () {
+        Route::get('/', [VehiculeController::class, 'index'])->name('index');
+        Route::get('/dashboard', [VehiculeController::class, 'dashboard'])->name('dashboard');
+        Route::get('/create', [VehiculeController::class, 'create'])->name('create');
+        Route::post('/', [VehiculeController::class, 'store'])->name('store');
+        Route::get('/{vehicule}', [VehiculeController::class, 'show'])->name('show');
+        Route::get('/{vehicule}/edit', [VehiculeController::class, 'edit'])->name('edit');
+        Route::put('/{vehicule}', [VehiculeController::class, 'update'])->name('update');
+        Route::delete('/{vehicule}', [VehiculeController::class, 'destroy'])->name('destroy');
+
+        // Maintenance des véhicules
+        Route::get('/{vehicule}/maintenance', [VehiculeController::class, 'maintenance'])->name('maintenance');
+        Route::post('/{vehicule}/maintenance', [VehiculeController::class, 'ajouterMaintenance'])->name('ajouter-maintenance');
+        Route::post('/{vehicule}/changer-statut', [VehiculeController::class, 'changerStatut'])->name('changer-statut');
+    });
+
+    // Gestion des chauffeurs
+    Route::prefix('chauffeurs')->name('chauffeurs.')->group(function () {
+        Route::get('/', [ChauffeurController::class, 'index'])->name('index');
+        Route::get('/create', [ChauffeurController::class, 'create'])->name('create');
+        Route::post('/', [ChauffeurController::class, 'store'])->name('store');
+        Route::get('/{chauffeur}', [ChauffeurController::class, 'show'])->name('show');
+        Route::get('/{chauffeur}/edit', [ChauffeurController::class, 'edit'])->name('edit');
+        Route::put('/{chauffeur}', [ChauffeurController::class, 'update'])->name('update');
+        Route::delete('/{chauffeur}', [ChauffeurController::class, 'destroy'])->name('destroy');
+
+        // API pour obtenir les chauffeurs disponibles
+        Route::get('/disponibles/list', [ChauffeurController::class, 'disponibles'])->name('disponibles');
+    });
+
+    // Gestion des demandes de véhicules
+    Route::prefix('demandes-vehicules')->name('demandes-vehicules.')->group(function () {
+        Route::get('/', [DemandeVehiculeController::class, 'index'])->name('index');
+        Route::get('/dashboard', [DemandeVehiculeController::class, 'dashboard'])->name('dashboard');
+        Route::get('/create', [DemandeVehiculeController::class, 'create'])->name('create');
+        Route::post('/', [DemandeVehiculeController::class, 'store'])->name('store');
+        Route::get('/{demandeVehicule}', [DemandeVehiculeController::class, 'show'])->name('show');
+        Route::get('/{demandeVehicule}/edit', [DemandeVehiculeController::class, 'edit'])->name('edit');
+        Route::put('/{demandeVehicule}', [DemandeVehiculeController::class, 'update'])->name('update');
+        Route::delete('/{demandeVehicule}', [DemandeVehiculeController::class, 'destroy'])->name('destroy');
+
+        // Interface d'approbation
+        Route::get('/approbation/list', [DemandeVehiculeController::class, 'approbation'])->name('approbation');
+        Route::post('/{demandeVehicule}/approuver', [DemandeVehiculeController::class, 'approuver'])->name('approuver');
+
+        // Interface d'affectation
+        Route::get('/affectation/list', [DemandeVehiculeController::class, 'affectation'])->name('affectation');
+        Route::post('/{demandeVehicule}/affecter', [DemandeVehiculeController::class, 'affecter'])->name('affecter');
+
+        // Gestion des missions
+        Route::post('/{demandeVehicule}/demarrer', [DemandeVehiculeController::class, 'demarrer'])->name('demarrer');
+        Route::post('/{demandeVehicule}/terminer', [DemandeVehiculeController::class, 'terminer'])->name('terminer');
+
+        // Interface agent
+        Route::get('/mes-demandes/list', [DemandeVehiculeController::class, 'mesDemandes'])->name('mes-demandes');
+
+        // API pour obtenir les informations d'affectation
+        Route::get('/{demandeVehicule}/affectation', [DemandeVehiculeController::class, 'getAffectationInfo'])->name('get-affectation');
+    });
+
+    // API pour obtenir les véhicules disponibles
+    Route::prefix('api')->group(function() {
+        Route::get('/vehicules/disponibles', [VehiculeController::class, 'disponibles']);
+        Route::get('/chauffeurs/disponibles', [ChauffeurController::class, 'disponibles']);
+        Route::get('/demandes-vehicules/{demandeVehicule}/affectation', [DemandeVehiculeController::class, 'getAffectationInfo']);
+    });
+
+    // Module Gestion des paiements
+    Route::prefix('paiements')->name('paiements.')->group(function () {
+        Route::get('/', [PaiementController::class, 'index'])->name('index');
+        Route::get('/dashboard', [PaiementController::class, 'dashboard'])->name('dashboard');
+        Route::get('/create', [PaiementController::class, 'create'])->name('create');
+        Route::post('/', [PaiementController::class, 'store'])->name('store');
+        Route::get('/{paiement}', [PaiementController::class, 'show'])->name('show');
+        Route::get('/{paiement}/edit', [PaiementController::class, 'edit'])->name('edit');
+        Route::put('/{paiement}', [PaiementController::class, 'update'])->name('update');
+        Route::delete('/{paiement}', [PaiementController::class, 'destroy'])->name('destroy');
+
+        // Interface de validation
+        Route::get('/validation/list', [PaiementController::class, 'validation'])->name('validation');
+        Route::post('/{paiement}/valider', [PaiementController::class, 'valider'])->name('valider');
+
+        // Interface de paiement
+        Route::get('/paiement/list', [PaiementController::class, 'paiement'])->name('paiement');
+        Route::post('/{paiement}/payer', [PaiementController::class, 'payer'])->name('payer');
+
+        // Fiches de paie
+        Route::get('/fiches-paie/list', [PaiementController::class, 'fichesPaie'])->name('fiches-paie');
+        Route::get('/{paiement}/fiche-paie', [PaiementController::class, 'fichePaie'])->name('fiche-paie');
+
+        // Interface agent
+        Route::get('/mes-paiements/list', [PaiementController::class, 'mesPaiements'])->name('mes-paiements');
+
+        // API pour calculs
+        Route::get('/calculer-salaire', [PaiementController::class, 'calculerSalaire'])->name('calculer-salaire');
+        Route::get('/calculer-decompte-final', [PaiementController::class, 'calculerDecompteFinal'])->name('calculer-decompte-final');
+    });
+
+    // Module Gestion des courriers
+    Route::prefix('courriers')->name('courriers.')->group(function () {
+        Route::get('/', [CourrierController::class, 'index'])->name('index');
+        Route::get('/dashboard', [CourrierController::class, 'dashboard'])->name('dashboard');
+        Route::get('/create', [CourrierController::class, 'create'])->name('create');
+        Route::post('/', [CourrierController::class, 'store'])->name('store');
+        Route::get('/{courrier}', [CourrierController::class, 'show'])->name('show');
+        Route::get('/{courrier}/edit', [CourrierController::class, 'edit'])->name('edit');
+        Route::put('/{courrier}', [CourrierController::class, 'update'])->name('update');
+        Route::delete('/{courrier}', [CourrierController::class, 'destroy'])->name('destroy');
+
+        // Traitement des courriers
+        Route::post('/{courrier}/traiter', [CourrierController::class, 'traiter'])->name('traiter');
+        Route::post('/{courrier}/archiver', [CourrierController::class, 'archiver'])->name('archiver');
+
+        // Gestion des documents
+        Route::post('/{courrier}/ajouter-document', [CourrierController::class, 'ajouterDocument'])->name('ajouter-document');
+        Route::delete('/documents/{document}', [CourrierController::class, 'supprimerDocument'])->name('supprimer-document');
+
+        // Vues spécifiques
+        Route::get('/entrants/list', [CourrierController::class, 'entrants'])->name('entrants');
+        Route::get('/sortants/list', [CourrierController::class, 'sortants'])->name('sortants');
+        Route::get('/internes/list', [CourrierController::class, 'internes'])->name('internes');
+        Route::get('/non-traites/list', [CourrierController::class, 'nonTraites'])->name('non-traites');
+        Route::get('/archives/list', [CourrierController::class, 'archives'])->name('archives');
+    });
+
+    // Module Gestion des visiteurs
+    Route::prefix('visitors')->name('visitors.')->group(function () {
+        Route::get('/', [VisitorController::class, 'index'])->name('index');
+        Route::get('/create', [VisitorController::class, 'create'])->name('create');
+        Route::post('/', [VisitorController::class, 'store'])->name('store');
+        Route::get('/{visitor}', [VisitorController::class, 'show'])->name('show');
+        Route::get('/{visitor}/edit', [VisitorController::class, 'edit'])->name('edit');
+        Route::put('/{visitor}', [VisitorController::class, 'update'])->name('update');
+        Route::delete('/{visitor}', [VisitorController::class, 'destroy'])->name('destroy');
+
+        // Marquer la sortie
+        Route::post('/{visitor}/marquer-sortie', [VisitorController::class, 'marquerSortie'])->name('marquer-sortie');
+    });
+
+    // Module Gestion des valves (communiqués)
+    Route::prefix('valves')->name('valves.')->group(function () {
+        Route::get('/', [ValveController::class, 'index'])->name('index');
+        Route::get('/dashboard', [ValveController::class, 'dashboard'])->name('dashboard');
+        Route::get('/create', [ValveController::class, 'create'])->name('create');
+        Route::post('/', [ValveController::class, 'store'])->name('store');
+        Route::get('/{valve}', [ValveController::class, 'show'])->name('show');
+        Route::get('/{valve}/edit', [ValveController::class, 'edit'])->name('edit');
+        Route::put('/{valve}', [ValveController::class, 'update'])->name('update');
+        Route::delete('/{valve}', [ValveController::class, 'destroy'])->name('destroy');
+
+        // Activer/désactiver un communiqué
+        Route::post('/{valve}/toggle-actif', [ValveController::class, 'toggleActif'])->name('toggle-actif');
+    });
 });

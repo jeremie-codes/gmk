@@ -89,6 +89,24 @@
                     </div>
                 </div>
 
+                @if($conge->hasJustificatif())
+                <div>
+                    <label class="block text-sm font-medium text-gray-500">Justificatif</label>
+                    <div class="mt-1 p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <i class="bx bx-file text-blue-600 text-2xl"></i>
+                                <span class="text-gray-900">Document justificatif</span>
+                            </div>
+                            <a href="{{ $conge->justificatif_url }}" target="_blank"
+                               class="bg-blue-100 text-blue-800 px-3 py-1 rounded-md hover:bg-blue-200 transition-colors">
+                                <i class="bx bx-show mr-1"></i> Voir
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
                 <div>
                     <label class="block text-sm font-medium text-gray-500">Demandé le</label>
                     <p class="text-lg text-gray-900">{{ $conge->created_at->format('d/m/Y à H:i') }}</p>

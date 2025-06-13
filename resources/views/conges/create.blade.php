@@ -15,7 +15,7 @@
             <p class="text-sm text-gray-600">Remplissez les informations de votre demande de congé</p>
         </div>
 
-        <form method="POST" action="{{ route('conges.store') }}" class="p-6 space-y-6">
+        <form method="POST" action="{{ route('conges.store') }}" class="p-6 space-y-6" enctype="multipart/form-data">
             @csrf
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -39,7 +39,7 @@
 
                     <div>
                         <label for="type" class="block text-sm font-medium text-gray-700">Type de Congé *</label>
-                        <select name="type" id="type" required onchange="toggleSoldeInfo()"
+                        <select name="type" id="type" required onchange="toggleSoldeInfo(); toggleJustificatifInfo();"
                                 class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             <option value="">Sélectionnez...</option>
                             <option value="annuel" {{ old('type') == 'annuel' ? 'selected' : '' }}>Congé annuel</option>
@@ -87,6 +87,31 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <!-- Justificatif (image) -->
+                    <div id="justificatif-container" class="hidden">
+                        <label for="justificatif" class="block text-sm font-medium text-gray-700">
+                            Justificatif
+                            <span id="justificatif-required" class="text-red-600 hidden">*</span>
+                            <span id="justificatif-optional" class="text-gray-500">(facultatif)</span>
+                        </label>
+                        <div class="mt-1 flex items-center">
+                            <input type="file" name="justificatif" id="justificatif"
+                                   accept="image/jpeg,image/png,image/gif,image/jpg,application/pdf"
+                                   class="py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
+                                   onchange="previewJustificatif(this)">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Formats acceptés : JPG, PNG, GIF, PDF. Max 2 Mo.</p>
+                        <div id="justificatif-preview" class="mt-2 hidden">
+                            <img id="preview-image" src="#" alt="Aperçu du justificatif" class="max-h-40 rounded-md border border-gray-300">
+                            <button type="button" onclick="clearJustificatif()" class="mt-1 text-xs text-red-600 hover:text-red-800">
+                                <i class="bx bx-trash"></i> Supprimer
+                            </button>
+                        </div>
+                        @error('justificatif')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
 
                 <!-- Informations calculées -->
@@ -111,6 +136,17 @@
                         </h4>
                         <div id="solde-details" class="space-y-2">
                             <!-- Contenu dynamique -->
+                        </div>
+                    </div>
+
+                    <!-- Information sur le justificatif -->
+                    <div id="justificatif-info" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4" style="display: none;">
+                        <h4 class="text-sm font-medium text-yellow-900 mb-2 flex items-center">
+                            <i class="bx bx-file mr-2"></i>
+                            Justificatif Médical
+                        </h4>
+                        <div class="text-sm text-yellow-800">
+                            <p id="justificatif-message">Pour les congés maladie, il est recommandé de fournir un justificatif médical.</p>
                         </div>
                     </div>
 
@@ -247,6 +283,40 @@
         }
     }
 
+    function toggleJustificatifInfo() {
+        const type = document.getElementById('type').value;
+        const justificatifContainer = document.getElementById('justificatif-container');
+        const justificatifInfo = document.getElementById('justificatif-info');
+        const justificatifRequired = document.getElementById('justificatif-required');
+        const justificatifOptional = document.getElementById('justificatif-optional');
+        const justificatifMessage = document.getElementById('justificatif-message');
+
+        if (type === 'maladie') {
+            justificatifContainer.classList.remove('hidden');
+            justificatifInfo.style.display = 'block';
+            justificatifMessage.textContent = 'Pour les congés maladie, il est fortement recommandé de fournir un justificatif médical.';
+            justificatifRequired.classList.add('hidden');
+            justificatifOptional.classList.remove('hidden');
+        } else if (type === 'maternite' || type === 'paternite') {
+            justificatifContainer.classList.remove('hidden');
+            justificatifInfo.style.display = 'block';
+            justificatifMessage.textContent = `Pour les congés ${type === 'maternite' ? 'maternité' : 'paternité'}, un justificatif peut être demandé.`;
+            justificatifRequired.classList.add('hidden');
+            justificatifOptional.classList.remove('hidden');
+        } else if (type === 'exceptionnel') {
+            justificatifContainer.classList.remove('hidden');
+            justificatifInfo.style.display = 'block';
+            justificatifMessage.textContent = 'Pour les congés exceptionnels, un justificatif peut être nécessaire selon le motif.';
+            justificatifRequired.classList.add('hidden');
+            justificatifOptional.classList.remove('hidden');
+        } else {
+            justificatifContainer.classList.add('hidden');
+            justificatifInfo.style.display = 'none';
+        }
+
+        validerFormulaire();
+    }
+
     function calculerJours() {
         const dateDebut = document.getElementById('date_debut').value;
         const dateFin = document.getElementById('date_fin').value;
@@ -281,6 +351,30 @@
         validerFormulaire();
     }
 
+    function previewJustificatif(input) {
+        const preview = document.getElementById('justificatif-preview');
+        const previewImage = document.getElementById('preview-image');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                previewImage.src = e.target.result;
+                preview.classList.remove('hidden');
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function clearJustificatif() {
+        const input = document.getElementById('justificatif');
+        const preview = document.getElementById('justificatif-preview');
+
+        input.value = '';
+        preview.classList.add('hidden');
+    }
+
     function validerFormulaire() {
         const agentId = document.getElementById('agent_id').value;
         const type = document.getElementById('type').value;
@@ -288,6 +382,7 @@
         const dateFin = document.getElementById('date_fin').value;
         const motif = document.getElementById('motif').value;
         const nombreJours = parseInt(document.getElementById('nombre-jours').textContent) || 0;
+        const justificatif = document.getElementById('justificatif');
 
         const submitBtn = document.getElementById('submit-btn');
         const validationInfo = document.getElementById('validation-info');
@@ -352,9 +447,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('agent_id').addEventListener('change', calculerSolde);
         document.getElementById('type').addEventListener('change', toggleSoldeInfo);
+        document.getElementById('type').addEventListener('change', toggleJustificatifInfo);
         document.getElementById('date_debut').addEventListener('change', calculerJours);
         document.getElementById('date_fin').addEventListener('change', calculerJours);
         document.getElementById('motif').addEventListener('input', validerFormulaire);
+        document.getElementById('justificatif').addEventListener('change', validerFormulaire);
 
         // Calculer si des valeurs sont déjà présentes
         if (document.getElementById('agent_id').value) {
@@ -362,6 +459,9 @@
         }
         if (document.getElementById('date_debut').value && document.getElementById('date_fin').value) {
             calculerJours();
+        }
+        if (document.getElementById('type').value) {
+            toggleJustificatifInfo();
         }
     });
 </script>

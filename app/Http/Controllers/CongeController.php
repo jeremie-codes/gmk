@@ -7,6 +7,7 @@ use App\Models\Agent;
 use App\Models\SoldeConge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 
 class CongeController extends Controller
@@ -138,6 +139,7 @@ class CongeController extends Controller
             'date_fin' => 'required|date|after:date_debut',
             'type' => 'required|in:annuel,maladie,maternite,paternite,exceptionnel',
             'motif' => 'required|string|max:1000',
+            'justificatif' => 'nullable|image|mimes:jpeg,png,jpg,gif,pdf|max:2048',
         ]);
 
         $agent = Agent::findOrFail($validated['agent_id']);
@@ -176,6 +178,12 @@ class CongeController extends Controller
 
         $validated['nombre_jours'] = $nombreJours;
 
+        // Gestion de l'upload du justificatif
+        if ($request->hasFile('justificatif')) {
+            $justificatifPath = $request->file('justificatif')->store('conges/justificatifs', 'public');
+            $validated['justificatif'] = $justificatifPath;
+        }
+
         Conge::create($validated);
 
         return redirect()->route('conges.index')
@@ -195,8 +203,8 @@ class CongeController extends Controller
                 ->with('error', 'Cette demande ne peut plus être modifiée.');
         }
 
-        $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
-        return view('conges.edit', compact('conge', 'agents'));
+        $agent = Agent::find($conge->agent_id);
+        return view('conges.edit', compact('conge', 'agent'));
     }
 
     public function update(Request $request, Conge $conge)
@@ -212,6 +220,7 @@ class CongeController extends Controller
             'date_fin' => 'required|date|after:date_debut',
             'type' => 'required|in:annuel,maladie,maternite,paternite,exceptionnel',
             'motif' => 'required|string|max:1000',
+            'justificatif' => 'nullable|image|mimes:jpeg,png,jpg,gif,pdf|max:2048',
         ]);
 
         $agent = Agent::findOrFail($validated['agent_id']);
@@ -232,6 +241,17 @@ class CongeController extends Controller
 
         $validated['nombre_jours'] = $nombreJours;
 
+        // Gestion de l'upload du justificatif
+        if ($request->hasFile('justificatif')) {
+            // Supprimer l'ancien justificatif si existant
+            if ($conge->justificatif && Storage::disk('public')->exists($conge->justificatif)) {
+                Storage::disk('public')->delete($conge->justificatif);
+            }
+
+            $justificatifPath = $request->file('justificatif')->store('conges/justificatifs', 'public');
+            $validated['justificatif'] = $justificatifPath;
+        }
+
         $conge->update($validated);
 
         return redirect()->route('conges.show', $conge)
@@ -243,6 +263,11 @@ class CongeController extends Controller
         if (!$conge->peutEtreModifie()) {
             return redirect()->route('conges.index')
                 ->with('error', 'Cette demande ne peut pas être supprimée.');
+        }
+
+        // Supprimer le justificatif si existant
+        if ($conge->justificatif && Storage::disk('public')->exists($conge->justificatif)) {
+            Storage::disk('public')->delete($conge->justificatif);
         }
 
         $conge->delete();

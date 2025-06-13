@@ -2,63 +2,70 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Role;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Faker\Factory as Faker;
 
 class UserSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        // Récupérer les rôles
-        $roles = Role::all()->keyBy('name');
+        $faker = Faker::create('fr_FR');
 
-        // Créer les utilisateurs avec leurs rôles
-        $users = [
+        // Créer un utilisateur administrateur (DRH)
+        $drhRole = Role::where('name', 'drh')->first();
+        User::updateOrCreate(
+            ['email' => 'admin@anadec.com'],
             [
-                'name' => 'Administrateur DRH',
-                'email' => 'admin@anadec.com',
-                'password' => Hash::make('password'),
-                'role_id' => $roles['drh']->id ?? null,
-            ],
-            [
-                'name' => 'Gestionnaire RH',
-                'email' => 'rh@anadec.com',
-                'password' => Hash::make('password'),
-                'role_id' => $roles['rh']->id ?? null,
-            ],
-            [
-                'name' => 'Directeur Général',
-                'email' => 'directeur@anadec.com',
-                'password' => Hash::make('password'),
-                'role_id' => $roles['directeur']->id ?? null,
-            ],
-            [
-                'name' => 'Sous-Directeur',
-                'email' => 'sousdirecteur@anadec.com',
-                'password' => Hash::make('password'),
-                'role_id' => $roles['sous_directeur']->id ?? null,
-            ],
-            [
-                'name' => 'Responsable Service',
-                'email' => 'responsable@anadec.com',
-                'password' => Hash::make('password'),
-                'role_id' => $roles['responsable_service']->id ?? null,
-            ],
-            [
-                'name' => 'Agent Simple',
-                'email' => 'agent@anadec.com',
-                'password' => Hash::make('password'),
-                'role_id' => $roles['agent']->id ?? null,
-            ],
-        ];
+                'name' => 'Admin ANADEC',
+                'photo' => null, // Vous pouvez ajouter un chemin de photo si vous en avez une par défaut
+                'password' => Hash::make('password'), // Mot de passe par défaut
+                'role_id' => $drhRole ? $drhRole->id : null,
+            ]
+        );
 
-        foreach ($users as $userData) {
-            User::updateOrCreate(
-                ['email' => $userData['email']],
-                $userData
+        // Créer un utilisateur RH
+        $rhRole = Role::where('name', 'rh')->first();
+        User::updateOrCreate(
+            ['email' => 'rh@anadec.com'],
+            [
+                'name' => 'RH ANADEC',
+                'photo' => null,
+                'password' => Hash::make('password'),
+                'role_id' => $rhRole ? $rhRole->id : null,
+            ]
+        );
+
+        // Créer un utilisateur agent
+        $agentRole = Role::where('name', 'agent')->first();
+        User::updateOrCreate(
+            ['email' => 'agent@anadec.com'],
+            [
+                'name' => 'Agent Test',
+                'photo' => null,
+                'password' => Hash::make('password'),
+                'role_id' => $agentRole ? $agentRole->id : null,
+            ]
+        );
+
+        // Créer 10 utilisateurs supplémentaires avec des rôles aléatoires
+        $roles = Role::all();
+        for ($i = 0; $i < 10; $i++) {
+            $user = User::updateOrCreate(
+                ['email' => $faker->unique()->safeEmail()],
+                [
+                    'name' => $faker->name(),
+                    'photo' => null,
+                    'password' => Hash::make('password'),
+                    'role_id' => $roles->random()->id,
+                ]
             );
         }
     }
 }
+

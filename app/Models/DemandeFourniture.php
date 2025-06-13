@@ -12,6 +12,7 @@ class DemandeFourniture extends Model
 
     protected $fillable = [
         'agent_id',
+        'article_id',
         'direction',
         'service',
         'besoin',
@@ -38,6 +39,11 @@ class DemandeFourniture extends Model
     public function agent()
     {
         return $this->belongsTo(Agent::class);
+    }
+
+    public function article()
+    {
+        return $this->belongsTo(Stock::class, 'article_id');
     }
 
     public function approbateur()

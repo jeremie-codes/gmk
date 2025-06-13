@@ -2,150 +2,83 @@
 
 namespace Database\Seeders;
 
-use App\Models\Agent;
 use Illuminate\Database\Seeder;
+use App\Models\Agent;
+use App\Models\User;
+use Faker\Factory as Faker;
 use Carbon\Carbon;
 
 class AgentSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $directions = [
-            'Direction Générale',
-            'Direction RH', 
-            'Direction Financière',
-            'Direction Technique',
-            'Direction Administrative',
-            'Direction Commerciale'
-        ];
+        $faker = Faker::create('fr_FR');
 
-        $services = [
-            'Service Personnel',
-            'Service Paie',
-            'Service Formation',
-            'Service Comptabilité',
-            'Service IT',
-            'Service Marketing'
-        ];
+        // Récupérer les utilisateurs qui n'ont pas encore d'agent associé
+        $usersWithoutAgent = User::doesntHave('agent')->get();
 
-        $postes = [
-            'Directeur',
-            'Chef de Service',
-            'Responsable',
-            'Agent',
-            'Assistant',
-            'Technicien',
-            'Secrétaire'
-        ];
-
-        $noms = [
-            'KOUAME', 'KONE', 'YAO', 'ASSOUMOU', 'DIABATE', 'DOUMBIA', 
-            'TRAORE', 'OUATTARA', 'BAMBA', 'TOURE', 'DIARRA', 'COULIBALY',
-            'N\'GUESSAN', 'ADOU', 'AKISSI', 'KONAN', 'ADJOUA', 'AKA'
-        ];
-
-        $prenoms = [
-            'Marie', 'Jean', 'Fatou', 'Amadou', 'Aissata', 'Moussa',
-            'Fatoumata', 'Ibrahim', 'Rokia', 'Seydou', 'Aminata', 'Bakary',
-            'Adama', 'Mariam', 'Ousmane', 'Kadiatou', 'Mamadou', 'Awa'
-        ];
-
-        // Générer 100 agents
-        for ($i = 1; $i <= 100; $i++) {
-            $dateNaissance = Carbon::createFromDate(
-                rand(1960, 1995),
-                rand(1, 12),
-                rand(1, 28)
+        // Créer des agents pour les utilisateurs existants sans agent
+        foreach ($usersWithoutAgent as $user) {
+            Agent::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'matricule' => 'MAT-' . $faker->unique()->randomNumber(5),
+                    'nom' => $user->name,
+                    'prenoms' => $faker->firstName(),
+                    'date_naissance' => $faker->dateTimeBetween('-60 years', '-25 years')->format('Y-m-d'),
+                    'lieu_naissance' => $faker->city(),
+                    'sexe' => $faker->randomElement(['M', 'F']),
+                    'situation_matrimoniale' => $faker->randomElement(['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']),
+                    'direction' => $faker->randomElement(['Direction Générale', 'Direction RH', 'Direction Financière', 'Direction Technique', 'Direction Administrative', 'Direction Commerciale']),
+                    'service' => $faker->randomElement(['Comptabilité', 'Informatique', 'Marketing', 'Ressources Humaines', 'Logistique', 'Commercial']),
+                    'poste' => $faker->jobTitle(),
+                    'salaire_base' => $faker->randomFloat(2, 500000, 2000000),
+                    'date_recrutement' => $faker->dateTimeBetween('-10 years', 'now')->format('Y-m-d'),
+                    'telephone' => $faker->phoneNumber(),
+                    'email' => $user->email,
+                    'photo' => null,
+                    'adresse' => $faker->address(),
+                    'compte_bancaire' => $faker->bankAccountNumber(),
+                    'banque' => $faker->randomElement(['SGBCI', 'BICICI', 'Ecobank', 'BOA']),
+                    'numero_cnps' => $faker->unique()->randomNumber(8),
+                    'numero_impots' => $faker->unique()->randomNumber(9),
+                    'statut' => 'actif',
+                ]
             );
+        }
 
-            $dateRecrutement = Carbon::createFromDate(
-                rand(2000, 2024),
-                rand(1, 12),
-                rand(1, 28)
+        // Créer 20 agents supplémentaires sans compte utilisateur (pour simuler des agents existants avant la création de comptes)
+        for ($i = 0; $i < 20; $i++) {
+            Agent::updateOrCreate(
+                ['matricule' => 'MAT-' . $faker->unique()->randomNumber(5)],
+                [
+                    'user_id' => null,
+                    'nom' => $faker->lastName(),
+                    'prenoms' => $faker->firstName(),
+                    'date_naissance' => $faker->dateTimeBetween('-60 years', '-25 years')->format('Y-m-d'),
+                    'lieu_naissance' => $faker->city(),
+                    'sexe' => $faker->randomElement(['M', 'F']),
+                    'situation_matrimoniale' => $faker->randomElement(['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']),
+                    'direction' => $faker->randomElement(['Direction Générale', 'Direction RH', 'Direction Financière', 'Direction Technique', 'Direction Administrative', 'Direction Commerciale']),
+                    'service' => $faker->randomElement(['Comptabilité', 'Informatique', 'Marketing', 'Ressources Humaines', 'Logistique', 'Commercial']),
+                    'poste' => $faker->jobTitle(),
+                    'salaire_base' => $faker->randomFloat(2, 500000, 2000000),
+                    'date_recrutement' => $faker->dateTimeBetween('-10 years', 'now')->format('Y-m-d'),
+                    'telephone' => $faker->phoneNumber(),
+                    'email' => $faker->unique()->safeEmail(),
+                    'photo' => null,
+                    'adresse' => $faker->address(),
+                    'compte_bancaire' => $faker->bankAccountNumber(),
+                    'banque' => $faker->randomElement(['SGBCI', 'BICICI', 'Ecobank', 'BOA']),
+                    'numero_cnps' => $faker->unique()->randomNumber(8),
+                    'numero_impots' => $faker->unique()->randomNumber(9),
+                    'statut' => $faker->randomElement(['actif', 'retraite', 'malade', 'demission']),
+                ]
             );
-
-            $statut = $this->getRandomStatut();
-            $agent = [
-                'matricule' => 'MAT' . str_pad($i, 6, '0', STR_PAD_LEFT),
-                'nom' => $noms[array_rand($noms)],
-                'prenoms' => $prenoms[array_rand($prenoms)],
-                'date_naissance' => $dateNaissance,
-                'lieu_naissance' => $this->getRandomVille(),
-                'sexe' => rand(0, 1) ? 'M' : 'F',
-                'situation_matrimoniale' => $this->getRandomSituationMatrimoniale(),
-                'direction' => $directions[array_rand($directions)],
-                'service' => $services[array_rand($services)],
-                'poste' => $postes[array_rand($postes)],
-                'date_recrutement' => $dateRecrutement,
-                'telephone' => '0' . rand(1, 9) . rand(10000000, 99999999),
-                'email' => strtolower($prenoms[array_rand($prenoms)]) . '.' . 
-                          strtolower($noms[array_rand($noms)]) . '@anadec.com',
-                'adresse' => $this->getRandomAdresse(),
-                'statut' => $statut,
-            ];
-
-            // Ajouter les dates spécifiques selon le statut
-            if ($statut === 'retraite') {
-                $agent['date_retraite'] = $dateRecrutement->copy()->addYears(rand(25, 35));
-            } elseif ($statut === 'malade') {
-                $agent['date_maladie'] = Carbon::now()->subDays(rand(1, 90));
-            } elseif ($statut === 'demission') {
-                $agent['date_demission'] = Carbon::now()->subDays(rand(1, 365));
-            }
-
-            Agent::create($agent);
         }
-    }
-
-    private function getRandomStatut()
-    {
-        $statuts = [
-            'actif' => 70,      // 70% actifs
-            'retraite' => 10,   // 10% retraités
-            'malade' => 8,      // 8% malades
-            'demission' => 5,   // 5% démissions
-            'disponibilite' => 3, // 3% disponibilité
-            'mission' => 2,     // 2% missions
-            'detachement' => 1, // 1% détachements
-            'mutation' => 1,    // 1% mutations
-        ];
-
-        $random = rand(1, 100);
-        $cumul = 0;
-        
-        foreach ($statuts as $statut => $pourcentage) {
-            $cumul += $pourcentage;
-            if ($random <= $cumul) {
-                return $statut;
-            }
-        }
-        
-        return 'actif';
-    }
-
-    private function getRandomVille()
-    {
-        $villes = [
-            'Abidjan', 'Bouaké', 'Daloa', 'Yamoussoukro', 'San-Pédro',
-            'Korhogo', 'Man', 'Divo', 'Gagnoa', 'Abengourou'
-        ];
-        
-        return $villes[array_rand($villes)];
-    }
-
-    private function getRandomSituationMatrimoniale()
-    {
-        $situations = ['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf/Veuve'];
-        return $situations[array_rand($situations)];
-    }
-
-    private function getRandomAdresse()
-    {
-        $quartiers = [
-            'Cocody', 'Yopougon', 'Adjamé', 'Treichville', 'Marcory',
-            'Port-Bouët', 'Koumassi', 'Plateau', 'Abobo', 'Attécoubé'
-        ];
-        
-        return 'Quartier ' . $quartiers[array_rand($quartiers)] . ', Rue ' . rand(1, 50);
     }
 }
+

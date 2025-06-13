@@ -77,6 +77,71 @@
         </div>
     </div>
 
+    <!-- Communiqués de la valve -->
+    <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="bx bx-megaphone mr-2 text-indigo-600"></i>
+                    Communiqués Importants
+                </h3>
+                <a href="{{ route('valves.index') }}" class="text-sm text-indigo-600 hover:text-indigo-800">
+                    Voir tous les communiqués
+                </a>
+            </div>
+        </div>
+        <div class="p-6">
+            @php
+                $valves = \App\Models\Valve::enCours()
+                    ->orderByRaw("FIELD(priorite, 'urgente', 'haute', 'normale', 'basse')")
+                    ->orderBy('date_debut', 'desc')
+                    ->take(3)
+                    ->get();
+            @endphp
+
+            @if($valves->count() > 0)
+                <div class="space-y-4">
+                    @foreach($valves as $valve)
+                        <div class="p-4 rounded-lg border {{ $valve->priorite === 'urgente' ? 'bg-red-50 border-red-200' : ($valve->priorite === 'haute' ? 'bg-orange-50 border-orange-200' : 'bg-blue-50 border-blue-200') }}">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-medium text-gray-900 flex items-center">
+                                    @if($valve->priorite === 'urgente')
+                                        <i class="bx bx-error-circle text-red-600 mr-2"></i>
+                                    @elseif($valve->priorite === 'haute')
+                                        <i class="bx bx-up-arrow text-orange-600 mr-2"></i>
+                                    @else
+                                        <i class="bx bx-info-circle text-blue-600 mr-2"></i>
+                                    @endif
+                                    {{ $valve->titre }}
+                                </h4>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $valve->getPrioriteBadgeClass() }}">
+                                    {{ $valve->getPrioriteLabel() }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-700 mb-2">
+                                {{ Str::limit($valve->contenu, 150) }}
+                            </p>
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span>{{ $valve->getDateRangeFormatted() }}</span>
+                                <a href="{{ route('valves.show', $valve) }}" class="text-indigo-600 hover:text-indigo-800">
+                                    Lire la suite
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <div class="text-center py-8">
+                    <i class="bx bx-megaphone text-4xl text-gray-300 mb-2"></i>
+                    <p class="text-gray-500">Aucun communiqué actif pour le moment.</p>
+                    <a href="{{ route('valves.create') }}" class="mt-2 inline-block text-anadec-blue hover:text-anadec-dark-blue">
+                        <i class="bx bx-plus-circle mr-1"></i> Créer un communiqué
+                    </a>
+                </div>
+            @endif
+        </div>
+    </div>
+
     <!-- Graphiques et tableaux -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <!-- Présences de la semaine -->
@@ -166,21 +231,21 @@
                     </div>
                 </a>
 
-                <a href="{{ route('presences.daily') }}"
+                <a href="{{ route('visitors.create') }}"
                    class="group flex items-center p-4 bg-gradient-to-br from-yellow-50 to-orange-100 rounded-xl hover:from-yellow-100 hover:to-orange-200 transition-all duration-200 border border-yellow-200">
-                    <i class="bx bx-calendar-event text-orange-600 text-3xl mr-3 group-hover:scale-110 transition-transform"></i>
+                    <i class="bx bx-user-voice text-orange-600 text-3xl mr-3 group-hover:scale-110 transition-transform"></i>
                     <div>
-                        <p class="font-semibold text-orange-900">Présence du Jour</p>
-                        <p class="text-sm text-orange-700">Voir les présences</p>
+                        <p class="font-semibold text-orange-900">Nouveau Visiteur</p>
+                        <p class="text-sm text-orange-700">Enregistrer visiteur</p>
                     </div>
                 </a>
 
-                <a href="{{ route('agents.index') }}"
+                <a href="{{ route('valves.create') }}"
                    class="group flex items-center p-4 bg-gradient-to-br from-purple-50 to-pink-100 rounded-xl hover:from-purple-100 hover:to-pink-200 transition-all duration-200 border border-purple-200">
-                    <i class="bx bx-list-ul text-purple-600 text-3xl mr-3 group-hover:scale-110 transition-transform"></i>
+                    <i class="bx bx-megaphone text-purple-600 text-3xl mr-3 group-hover:scale-110 transition-transform"></i>
                     <div>
-                        <p class="font-semibold text-purple-900">Liste des Agents</p>
-                        <p class="text-sm text-purple-700">Voir tous les agents</p>
+                        <p class="font-semibold text-purple-900">Nouveau Communiqué</p>
+                        <p class="text-sm text-purple-700">Publier annonce</p>
                     </div>
                 </a>
             </div>
