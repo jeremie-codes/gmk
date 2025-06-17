@@ -98,12 +98,6 @@ class DemandeVehiculeController extends Controller
             ->take(10)
             ->get();
 
-        // Statistiques par direction
-        $statsParDirection = DemandeVehicule::selectRaw('direction, COUNT(*) as total')
-            ->groupBy('direction')
-            ->orderBy('total', 'desc')
-            ->get();
-
         // Véhicules en mission
         $vehiculesEnMission = Vehicule::whereHas('demandesVehicules', function($query) {
             $query->where('statut', 'en_cours');
@@ -115,7 +109,6 @@ class DemandeVehiculeController extends Controller
             'stats',
             'demandesUrgentes',
             'demandesEnCours',
-            'statsParDirection',
             'vehiculesEnMission'
         ));
     }
@@ -134,29 +127,33 @@ class DemandeVehiculeController extends Controller
             'Direction Commerciale'
         ];
 
-        return view('demandes-vehicules.create', compact('agents', 'directions'));
+        $chauffeurs = Chauffeur::all() ?? [];
+
+        return view('demandes-vehicules.create', compact('agents', 'directions', 'chauffeurs'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        try {
+            $validated = $request->validate([
             'agent_id' => 'required|exists:agents,id',
-            'direction' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
+            'chauffeur_id' => 'required|exists:chauffeurs,id',
             'destination' => 'required|string|max:255',
             'motif' => 'required|string|max:1000',
             'date_heure_sortie' => 'required|date|after_or_equal:today',
             'date_heure_retour_prevue' => 'required|date|after:date_heure_sortie',
-            'duree_prevue' => 'required|integer|min:1',
             'nombre_passagers' => 'required|integer|min:1|max:50',
             'urgence' => 'required|in:faible,normale,elevee,critique',
-            'justification' => 'nullable|string|max:1000',
         ]);
 
         DemandeVehicule::create($validated);
 
         return redirect()->route('demandes-vehicules.index')
             ->with('success', 'Demande de véhicule créée avec succès.');
+        } catch (\Throwable $th) {
+            return redirect()->route('demandes-vehicules.create')
+                ->with('error', 'Error :' . $th->getMessage());
+        }
     }
 
     public function show(DemandeVehicule $demandeVehicule)
@@ -173,6 +170,7 @@ class DemandeVehiculeController extends Controller
         }
 
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
+        $chauffeurs = Chauffeur::all();
 
         $directions = [
             'Direction Générale',
@@ -183,7 +181,7 @@ class DemandeVehiculeController extends Controller
             'Direction Commerciale'
         ];
 
-        return view('demandes-vehicules.edit', compact('demandeVehicule', 'agents', 'directions'));
+        return view('demandes-vehicules.edit', compact('demandeVehicule', 'agents', 'directions', 'chauffeurs'));
     }
 
     public function update(Request $request, DemandeVehicule $demandeVehicule)
@@ -195,16 +193,13 @@ class DemandeVehiculeController extends Controller
 
         $validated = $request->validate([
             'agent_id' => 'required|exists:agents,id',
-            'direction' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
+            'chauffeur_id' => 'required|exists:chauffeurs,id',
             'destination' => 'required|string|max:255',
             'motif' => 'required|string|max:1000',
             'date_heure_sortie' => 'required|date|after_or_equal:today',
             'date_heure_retour_prevue' => 'required|date|after:date_heure_sortie',
-            'duree_prevue' => 'required|integer|min:1',
             'nombre_passagers' => 'required|integer|min:1|max:50',
             'urgence' => 'required|in:faible,normale,elevee,critique',
-            'justification' => 'nullable|string|max:1000',
         ]);
 
         $demandeVehicule->update($validated);

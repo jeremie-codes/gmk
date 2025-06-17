@@ -15,7 +15,7 @@
             <p class="text-sm text-gray-600">Créez un nouveau communiqué à afficher sur la valve</p>
         </div>
 
-        <form method="POST" action="{{ route('valves.store') }}" class="p-6 space-y-6">
+        <form method="POST" action="{{ route('valves.store') }}"  class="p-6 space-y-6" enctype="multipart/form-data">
             @csrf
 
             <div class="space-y-6">
@@ -37,6 +37,22 @@
                     @error('contenu')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                </div>
+
+                <!-- Documents joints -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Documents joints</label>
+                    </div>
+                    <div id="documents-container" class="space-y-3">
+                        <div class="grid grid-cols-12 gap-2 items-start">
+                            <div class="col-span-12">
+                                <input type="file" name="documents[]"
+                                    class="py-2 px-3 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Formats acceptés : PDF, Word, Excel, images. Max 10 Mo par fichier.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -86,6 +102,7 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
                 </div>
 
                 <!-- Informations sur la publication -->
@@ -99,6 +116,7 @@
                         <p><strong>Date de publication :</strong> {{ now()->format('d/m/Y à H:i') }}</p>
                     </div>
                 </div>
+
             </div>
 
             <!-- Boutons d'action -->

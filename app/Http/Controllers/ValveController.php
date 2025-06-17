@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DocumentValve;
 use App\Models\Valve;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class ValveController extends Controller
 {
@@ -64,22 +66,47 @@ class ValveController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+
+        // dd($request->all());
+        try {
+            $validated = $request->validate([
             'titre' => 'required|string|max:255',
             'contenu' => 'required|string',
             'priorite' => 'required|in:basse,normale,haute,urgente',
             'date_debut' => 'required|date',
             'date_fin' => 'nullable|date|after_or_equal:date_debut',
             'actif' => 'boolean',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
         ]);
 
         $validated['actif'] = $request->has('actif');
         $validated['publie_par'] = Auth::id();
 
-        Valve::create($validated);
+        $valve = Valve::create($validated);
+
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $index => $file) {
+                $path = $file->store('valves/' . $valve->id, 'public');
+                $extension = $file->getClientOriginalExtension();
+                $type = DocumentValve::detecterType($extension);
+
+                DocumentValve::create([
+                    'valve_id' => $valve->id,
+                    'type_document' => $type,
+                    'chemin_fichier' => $path,
+                    'taille_fichier' => $file->getSize(),
+                ]);
+            }
+        }
 
         return redirect()->route('valves.index')
             ->with('success', 'Communiqué créé avec succès.');
+        } catch (\Throwable $th) {
+            dd($th->getMessage());
+            return redirect()->route('valves.create')
+            ->with('error', 'Erreur de création :' . $th->getMessage());
+        }
     }
 
     public function show(Valve $valve)
@@ -90,27 +117,55 @@ class ValveController extends Controller
 
     public function edit(Valve $valve)
     {
-        return view('valves.edit', compact('valve'));
+        $documents = DocumentValve::where('valve_id', $valve->id)->first();
+        // dd($documents->chemin_fichier);
+        return view('valves.edit', compact('valve', 'documents'));
     }
 
-    public function update(Request $request, Valve $valve)
-    {
-        $validated = $request->validate([
-            'titre' => 'required|string|max:255',
-            'contenu' => 'required|string',
-            'priorite' => 'required|in:basse,normale,haute,urgente',
-            'date_debut' => 'required|date',
-            'date_fin' => 'nullable|date|after_or_equal:date_debut',
-            'actif' => 'boolean',
-        ]);
+  public function update(Request $request, Valve $valve)
+{
+    $validated = $request->validate([
+        'titre' => 'required|string|max:255',
+        'contenu' => 'required|string',
+        'priorite' => 'required|in:basse,normale,haute,urgente',
+        'date_debut' => 'required|date',
+        'date_fin' => 'nullable|date|after_or_equal:date_debut',
+        'actif' => 'boolean',
+    ]);
 
-        $validated['actif'] = $request->has('actif');
+    $validated['actif'] = $request->has('actif');
 
-        $valve->update($validated);
+    $valve->update($validated);
 
-        return redirect()->route('valves.show', $valve)
-            ->with('success', 'Communiqué modifié avec succès.');
+    // Supprimer les anciens documents si de nouveaux sont ajoutés
+    if ($request->hasFile('documents')) {
+        // Supprimer les fichiers du disque
+        foreach ($valve->documents as $doc) {
+            if (Storage::disk('public')->exists($doc->chemin_fichier)) {
+                Storage::disk('public')->delete($doc->chemin_fichier);
+            }
+            $doc->delete(); // Supprimer l'enregistrement en BDD
+        }
+
+        // Enregistrer les nouveaux documents
+        foreach ($request->file('documents') as $file) {
+            $path = $file->store('valves/' . $valve->id, 'public');
+            $extension = $file->getClientOriginalExtension();
+            $type = DocumentValve::detecterType($extension);
+
+            DocumentValve::create([
+                'valve_id' => $valve->id,
+                'type_document' => $type,
+                'chemin_fichier' => $path,
+                'taille_fichier' => $file->getSize(),
+            ]);
+        }
     }
+
+    return redirect()->route('valves.show', $valve)
+        ->with('success', 'Communiqué modifié avec succès.');
+}
+
 
     public function destroy(Valve $valve)
     {

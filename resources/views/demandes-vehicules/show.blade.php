@@ -10,20 +10,20 @@
     <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <!-- Avatar demandeur -->
-                @if($demandeVehicule->demandeur->hasPhoto())
-                    <img src="{{ $demandeVehicule->demandeur->photo_url }}"
-                         alt="{{ $demandeVehicule->demandeur->full_name }}"
+                <!-- Avatar agent -->
+                @if($demandeVehicule->agent->hasPhoto())
+                    <img src="{{ $demandeVehicule->agent->photo_url }}"
+                         alt="{{ $demandeVehicule->agent->full_name }}"
                          class="w-16 h-16 rounded-full object-cover border-4 border-gray-200">
                 @else
                     <div class="w-16 h-16 bg-gradient-to-br from-anadec-blue to-anadec-dark-blue rounded-full flex items-center justify-center">
-                        <span class="text-lg font-bold text-white">{{ $demandeVehicule->demandeur->initials }}</span>
+                        <span class="text-lg font-bold text-white">{{ $demandeVehicule->agent->initials }}</span>
                     </div>
                 @endif
 
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-900">{{ $demandeVehicule->demandeur->full_name }}</h2>
-                    <p class="text-gray-600">{{ $demandeVehicule->demandeur->direction }} - {{ $demandeVehicule->demandeur->poste }}</p>
+                    <h2 class="text-2xl font-bold text-gray-900">{{ $demandeVehicule->agent->full_name }}</h2>
+                    <p class="text-gray-600">{{ $demandeVehicule->agent->direction }} - {{ $demandeVehicule->agent->poste }}</p>
                     <div class="flex items-center space-x-3 mt-2">
                         <span class="inline-flex px-3 py-1 text-sm font-semibold rounded-full {{ $demandeVehicule->getUrgenceBadgeClass() }}">
                             <i class="bx {{ $demandeVehicule->getUrgenceIcon() }} mr-1"></i>
@@ -44,7 +44,7 @@
                         <i class="bx bx-edit mr-2"></i>Modifier
                     </a>
                 @endif
-                
+
                 @if($demandeVehicule->peutEtreApprouve())
                     <button onclick="openApprovalModal({{ $demandeVehicule->id }}, 'approuver')"
                             class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center">
@@ -108,13 +108,6 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-500">Destination</label>
                     <p class="text-lg text-gray-900">{{ $demandeVehicule->destination }}</p>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Itinéraire</label>
-                    <div class="mt-1 p-3 bg-gray-50 rounded-lg">
-                        <p class="text-gray-900">{{ $demandeVehicule->itineraire }}</p>
-                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
@@ -657,14 +650,14 @@ function closeApprovalModal() {
 function openAffectationModal(demandeId) {
     const modal = document.getElementById('affectation-modal');
     const form = document.getElementById('affectation-form');
-    
+
     // Charger les véhicules disponibles
     fetch('/api/vehicules/disponibles')
         .then(response => response.json())
         .then(data => {
             const vehiculeSelect = document.getElementById('vehicule_id');
             vehiculeSelect.innerHTML = '<option value="">Sélectionnez un véhicule...</option>';
-            
+
             data.forEach(vehicule => {
                 const option = document.createElement('option');
                 option.value = vehicule.id;
@@ -674,14 +667,14 @@ function openAffectationModal(demandeId) {
                 vehiculeSelect.appendChild(option);
             });
         });
-    
+
     // Charger les chauffeurs disponibles
     fetch('/api/chauffeurs/disponibles')
         .then(response => response.json())
         .then(data => {
             const chauffeurSelect = document.getElementById('chauffeur_id');
             chauffeurSelect.innerHTML = '<option value="">Sélectionnez un chauffeur...</option>';
-            
+
             data.forEach(chauffeur => {
                 const option = document.createElement('option');
                 option.value = chauffeur.id;
@@ -692,7 +685,7 @@ function openAffectationModal(demandeId) {
 
     // Configuration du formulaire
     form.action = `/demandes-vehicules/${demandeId}/affecter`;
-    
+
     // Afficher le modal
     modal.classList.remove('hidden');
 }
@@ -708,20 +701,20 @@ function closeAffectationModal() {
 function openTerminerModal(demandeId) {
     const modal = document.getElementById('terminer-modal');
     const form = document.getElementById('terminer-form');
-    
+
     // Charger les informations de l'affectation
     fetch(`/api/demandes-vehicules/${demandeId}/affectation`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('kilometrage-depart').textContent = 
+            document.getElementById('kilometrage-depart').textContent =
                 `${data.kilometrage_depart} km`;
-            document.getElementById('kilometrage_retour').value = 
+            document.getElementById('kilometrage_retour').value =
                 data.kilometrage_depart;
         });
 
     // Configuration du formulaire
     form.action = `/demandes-vehicules/${demandeId}/terminer`;
-    
+
     // Afficher le modal
     modal.classList.remove('hidden');
 }
@@ -738,21 +731,21 @@ function closeTerminerModal() {
 function checkVehiculeCapacity() {
     const vehiculeSelect = document.getElementById('vehicule_id');
     const warning = document.getElementById('vehicule-warning');
-    
+
     if (vehiculeSelect.selectedIndex > 0) {
         const selectedOption = vehiculeSelect.options[vehiculeSelect.selectedIndex];
         const places = parseInt(selectedOption.dataset.places);
-        
+
         if (places < {{ $demandeVehicule->nombre_passagers }}) {
             warning.classList.remove('hidden');
         } else {
             warning.classList.add('hidden');
         }
-        
+
         // Mettre à jour le kilométrage
-        document.getElementById('dernier-kilometrage').textContent = 
+        document.getElementById('dernier-kilometrage').textContent =
             selectedOption.dataset.kilometrage + ' km';
-        document.getElementById('kilometrage_depart').value = 
+        document.getElementById('kilometrage_depart').value =
             selectedOption.dataset.kilometrage;
     } else {
         warning.classList.add('hidden');

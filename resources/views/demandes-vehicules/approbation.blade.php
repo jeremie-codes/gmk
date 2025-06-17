@@ -130,10 +130,7 @@
                                     <span class="font-medium">Destination :</span> {{ $demande->destination }}
                                 </div>
                                 <div>
-                                    <span class="font-medium">Date sortie :</span> {{ $demande->date_sortie->format('d/m/Y H:i') }}
-                                </div>
-                                <div>
-                                    <span class="font-medium">Durée :</span> {{ $demande->duree_prevue }}h
+                                    <span class="font-medium">Date sortie :</span> {{ $demande->date_heure_sortie->format('d/m/Y H:i') }}
                                 </div>
                             </div>
 

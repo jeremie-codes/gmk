@@ -153,31 +153,7 @@
     </div>
 
     <!-- Statistiques par direction et véhicules en mission -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Statistiques par direction -->
-        <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-                <h3 class="text-lg font-medium text-gray-900 flex items-center">
-                    <i class="bx bx-building mr-2 text-blue-600"></i>
-                    Demandes par Direction
-                </h3>
-            </div>
-            <div class="p-6">
-                <div class="space-y-4">
-                    @forelse($statsParDirection as $stat)
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <span class="text-sm font-medium text-gray-700">{{ $stat->direction }}</span>
-                        <span class="text-lg font-bold text-blue-600">{{ $stat->total }}</span>
-                    </div>
-                    @empty
-                    <div class="text-center text-gray-500 py-4">
-                        <p>Aucune donnée disponible.</p>
-                    </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
+    <div class="grid grid-cols-1 gap-6">
         <!-- Véhicules en mission -->
         <div class="bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50">

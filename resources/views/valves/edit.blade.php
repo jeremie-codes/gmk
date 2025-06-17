@@ -31,6 +31,26 @@
                 </div>
 
                 <div>
+                    <img src="{{ asset('storage/' . $documents->chemin_fichier) }}" alt="document">
+                </div>
+
+                <!-- Documents joints -->
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-sm font-medium text-gray-700">Documents joints</label>
+                    </div>
+                    <div id="documents-container" class="space-y-3">
+                        <div class="grid grid-cols-12 gap-2 items-start">
+                            <div class="col-span-12">
+                                <input type="file" name="documents[]"
+                                    class="py-2 px-3 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500">Formats acceptés : PDF, Word, Excel, images. Max 10 Mo par fichier.</p>
+                </div>
+
+                <div>
                     <label for="contenu" class="block text-sm font-medium text-gray-700">Contenu *</label>
                     <textarea name="contenu" id="contenu" rows="8" required
                               class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"

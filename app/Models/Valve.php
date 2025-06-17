@@ -26,6 +26,11 @@ class Valve extends Model
         'actif' => 'boolean',
     ];
 
+    public function documents()
+    {
+        return $this->hasMany(DocumentValve::class);
+    }
+
     // Relations
     public function publiePar()
     {

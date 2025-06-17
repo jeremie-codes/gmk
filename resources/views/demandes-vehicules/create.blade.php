@@ -23,7 +23,7 @@
                 <div class="space-y-6">
                     <div>
                         <label for="demandeur_id" class="block text-sm font-medium text-gray-700">Demandeur *</label>
-                        <select name="demandeur_id" id="demandeur_id" required
+                        <select name="agent_id" id="demandeur_id" required
                                 class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             <option value="">Sélectionnez un agent...</option>
                             @foreach($agents as $agent)
@@ -32,7 +32,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        @error('demandeur_id')
+                        @error('agent_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -70,16 +70,6 @@
                                placeholder="Lieu de destination"
                                class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                         @error('destination')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="itineraire" class="block text-sm font-medium text-gray-700">Itinéraire détaillé *</label>
-                        <textarea name="itineraire" id="itineraire" rows="3" required
-                                  class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
-                                  placeholder="Décrivez l'itinéraire complet...">{{ old('itineraire') }}</textarea>
-                        @error('itineraire')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
@@ -135,16 +125,6 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div>
-
-                    <div>
-                        <label for="justification" class="block text-sm font-medium text-gray-700">Justification</label>
-                        <textarea name="justification" id="justification" rows="3"
-                                  class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue"
-                                  placeholder="Justification supplémentaire si nécessaire...">{{ old('justification') }}</textarea>
-                        @error('justification')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <!-- Calcul de la durée -->
@@ -231,7 +211,7 @@
 
         if (dateSortie) {
             dateRetour.min = dateSortie;
-            
+
             // Si la date de retour est antérieure à la sortie, la mettre à jour
             if (dateRetour.value && dateRetour.value <= dateSortie) {
                 const sortie = new Date(dateSortie);
@@ -239,7 +219,7 @@
                 dateRetour.value = sortie.toISOString().slice(0, 16);
             }
         }
-        
+
         calculerDuree();
     }
 

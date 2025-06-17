@@ -168,7 +168,7 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Demandeur</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">agent</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Heure</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Passagers</th>
@@ -184,21 +184,21 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10">
-                                    @if($demande->demandeur->hasPhoto())
-                                        <img src="{{ $demande->demandeur->photo_url }}"
-                                             alt="{{ $demande->demandeur->full_name }}"
+                                    @if($demande->agent->hasPhoto())
+                                        <img src="{{ $demande->agent->photo_url }}"
+                                             alt="{{ $demande->agent->full_name }}"
                                              class="h-10 w-10 rounded-full object-cover border-2 border-gray-200">
                                     @else
                                         <div class="h-10 w-10 rounded-full bg-gradient-to-br from-anadec-blue to-anadec-dark-blue flex items-center justify-center">
                                             <span class="text-sm font-medium text-white">
-                                                {{ $demande->demandeur->initials }}
+                                                {{ $demande->agent->getInitialsAttribute() ?? 'initilal' }}
                                             </span>
                                         </div>
                                     @endif
                                 </div>
                                 <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $demande->demandeur->full_name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $demande->demandeur->direction }}</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $demande->agent->full_name ?? 'full name'  }}</div>
+                                    <div class="text-sm text-gray-500">{{ $demande->agent->direction ?? 'direction'  }}</div>
                                 </div>
                             </div>
                         </td>

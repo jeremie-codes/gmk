@@ -13,18 +13,14 @@ return new class extends Migration
             $table->foreignId('agent_id')->constrained()->onDelete('cascade');
             $table->foreignId('vehicule_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('chauffeur_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('direction');
-            $table->string('service');
             $table->string('destination');
             $table->text('motif');
             $table->datetime('date_heure_sortie');
             $table->datetime('date_heure_retour_prevue');
             $table->datetime('date_heure_retour_effective')->nullable();
-            $table->integer('duree_prevue');
             $table->integer('nombre_passagers')->default(1);
             $table->enum('urgence', ['faible', 'normale', 'elevee', 'critique'])->default('normale');
             $table->enum('statut', ['en_attente', 'approuve', 'affecte', 'en_cours', 'termine', 'rejete'])->default('en_attente');
-            $table->text('justification')->nullable();
             $table->text('commentaire_approbateur')->nullable();
             $table->date('date_approbation')->nullable();
             $table->foreignId('approuve_par')->nullable()->constrained('users')->onDelete('set null');

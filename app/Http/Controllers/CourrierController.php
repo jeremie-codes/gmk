@@ -219,72 +219,81 @@ class CourrierController extends Controller
         return view('courriers.edit', compact('courrier'));
     }
 
-    public function update(Request $request, Courrier $courrier)
-    {
-        if (!$courrier->peutEtreModifie()) {
-            return redirect()->route('courriers.show', $courrier)
-                ->with('error', 'Ce courrier ne peut plus être modifié.');
+public function update(Request $request, Courrier $courrier)
+{
+    if (!$courrier->peutEtreModifie()) {
+        return redirect()->route('courriers.show', $courrier)
+            ->with('error', 'Ce courrier ne peut plus être modifié.');
+    }
+
+    $validated = $request->validate([
+        'objet' => 'required|string|max:255',
+        'type_courrier' => 'required|in:entrant,sortant,interne',
+        'expediteur' => 'required|string|max:255',
+        'destinataire' => 'required|string|max:255',
+        'date_reception' => 'nullable|date',
+        'date_envoi' => 'nullable|date',
+        'priorite' => 'required|in:basse,normale,haute',
+        'description' => 'nullable|string',
+        'emplacement_physique' => 'nullable|string|max:255',
+        'confidentiel' => 'boolean',
+        'commentaires' => 'nullable|string',
+        'documents' => 'nullable|array',
+        'documents.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
+        'descriptions_documents' => 'nullable|array',
+        'descriptions_documents.*' => 'nullable|string',
+    ]);
+
+    $validated['confidentiel'] = $request->has('confidentiel');
+
+    // Mettre à jour les infos du courrier
+    $courrier->update($validated);
+
+    // Ajouter une entrée dans le suivi
+    $courrier->suivis()->create([
+        'action' => 'modification',
+        'commentaire' => 'Courrier modifié',
+        'effectue_par' => Auth::id(),
+    ]);
+
+    // Supprimer les anciens documents si de nouveaux sont ajoutés
+    if ($request->hasFile('documents')) {
+        // Supprimer les anciens fichiers du disque et BDD
+        foreach ($courrier->documents as $doc) {
+            if (Storage::disk('public')->exists($doc->chemin_fichier)) {
+                Storage::disk('public')->delete($doc->chemin_fichier);
+            }
+            $doc->delete();
         }
 
-        $validated = $request->validate([
-            'objet' => 'required|string|max:255',
-            'type_courrier' => 'required|in:entrant,sortant,interne',
-            'expediteur' => 'required|string|max:255',
-            'destinataire' => 'required|string|max:255',
-            'date_reception' => 'nullable|date',
-            'date_envoi' => 'nullable|date',
-            'priorite' => 'required|in:basse,normale,haute',
-            'description' => 'nullable|string',
-            'emplacement_physique' => 'nullable|string|max:255',
-            'confidentiel' => 'boolean',
-            'commentaires' => 'nullable|string',
-            'documents' => 'nullable|array',
-            'documents.*' => 'file|mimes:pdf,doc,docx,xls,xlsx,jpg,jpeg,png|max:10240',
-            'descriptions_documents' => 'nullable|array',
-            'descriptions_documents.*' => 'nullable|string',
-        ]);
+        // Ajouter les nouveaux documents
+        foreach ($request->file('documents') as $index => $file) {
+            $path = $file->store('courriers/' . $courrier->id, 'public');
+            $extension = $file->getClientOriginalExtension();
+            $type = DocumentCourrier::detecterType($extension);
 
-        $validated['confidentiel'] = $request->has('confidentiel');
-
-        // Mettre à jour le courrier
-        $courrier->update($validated);
-
-        // Ajouter une entrée dans le suivi
-        $courrier->suivis()->create([
-            'action' => 'modification',
-            'commentaire' => 'Courrier modifié',
-            'effectue_par' => Auth::id(),
-        ]);
-
-        // Traiter les documents joints
-        if ($request->hasFile('documents')) {
-            foreach ($request->file('documents') as $index => $file) {
-                $path = $file->store('courriers/' . $courrier->id, 'public');
-                $extension = $file->getClientOriginalExtension();
-                $type = DocumentCourrier::detecterType($extension);
-
-                DocumentCourrier::create([
-                    'courrier_id' => $courrier->id,
-                    'nom_document' => $file->getClientOriginalName(),
-                    'type_document' => $type,
-                    'chemin_fichier' => $path,
-                    'taille_fichier' => $file->getSize(),
-                    'ajoute_par' => Auth::id(),
-                    'description' => $request->descriptions_documents[$index] ?? null,
-                ]);
-            }
-
-            // Ajouter une entrée dans le suivi
-            $courrier->suivis()->create([
-                'action' => 'ajout_document',
-                'commentaire' => 'Nouveaux documents ajoutés au courrier',
-                'effectue_par' => Auth::id(),
+            DocumentCourrier::create([
+                'courrier_id' => $courrier->id,
+                'nom_document' => $file->getClientOriginalName(),
+                'type_document' => $type,
+                'chemin_fichier' => $path,
+                'taille_fichier' => $file->getSize(),
+                'ajoute_par' => Auth::id(),
+                'description' => $request->descriptions_documents[$index] ?? null,
             ]);
         }
 
-        return redirect()->route('courriers.show', $courrier)
-            ->with('success', 'Courrier mis à jour avec succès.');
+        // Suivi ajout de documents
+        $courrier->suivis()->create([
+            'action' => 'ajout_document',
+            'commentaire' => 'Nouveaux documents ajoutés au courrier (les anciens ont été remplacés)',
+            'effectue_par' => Auth::id(),
+        ]);
     }
+
+    return redirect()->route('courriers.show', $courrier)
+        ->with('success', 'Courrier mis à jour avec succès.');
+}
 
     public function destroy(Courrier $courrier)
     {

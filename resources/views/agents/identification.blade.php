@@ -10,8 +10,8 @@
     <div class="bg-white p-6 rounded-lg shadow-sm border">
         <form method="GET" class="flex items-center space-x-4">
             <div class="relative flex-1">
-                <input type="text" name="search" value="{{ request('search') }}" 
-                       placeholder="Rechercher par nom, prénom ou matricule..." 
+                <input type="text" name="search" value="{{ request('search') }}"
+                       placeholder="Rechercher par nom, prénom ou matricule..."
                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-anadec-blue focus:border-anadec-blue">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
                     <i class="bx bx-search text-gray-400"></i>
@@ -25,6 +25,11 @@
                     <i class="bx bx-x mr-1"></i>Effacer
                 </a>
             @endif
+            <a href="{{ route('agents.create') }}"
+                class="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 py-2 rounded-lg hover:from-green-700 hover:to-emerald-700 flex items-center transition-all">
+                <i class="bx bx-plus mr-2"></i>
+                Nouvel Agent
+            </a>
         </form>
     </div>
 
@@ -46,17 +51,17 @@
                         <p class="text-xs text-gray-500">{{ $agent->direction }}</p>
                     </div>
                 </div>
-                
+
                 <div class="mt-4 flex items-center justify-between">
                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                         Actif
                     </span>
                     <div class="flex space-x-2">
-                        <a href="{{ route('agents.show', $agent) }}" 
+                        <a href="{{ route('agents.show', $agent) }}"
                            class="text-anadec-blue hover:text-anadec-dark-blue">
                             <i class="bx bx-show text-lg"></i>
                         </a>
-                        <a href="{{ route('agents.edit', $agent) }}" 
+                        <a href="{{ route('agents.edit', $agent) }}"
                            class="text-yellow-600 hover:text-yellow-800">
                             <i class="bx bx-edit text-lg"></i>
                         </a>
