@@ -11,7 +11,7 @@
         <form method="GET" class="flex items-center space-x-4">
             <div class="relative flex-1">
                 <input type="text" name="search" value="{{ request('search') }}"
-                       placeholder="Rechercher par nom, prénom ou matricule..."
+                       placeholder="Rechercher par nom ou matricule..."
                        class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-anadec-blue focus:border-anadec-blue">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center">
                     <i class="bx bx-search text-gray-400"></i>
@@ -41,7 +41,7 @@
                 <div class="flex items-center space-x-4">
                     <div class="w-16 h-16 bg-anadec-blue rounded-full flex items-center justify-center flex-shrink-0">
                         <span class="text-lg font-bold text-white">
-                            {{ strtoupper(substr($agent->prenoms, 0, 1) . substr($agent->nom, 0, 1)) }}
+                            {{ strtoupper(substr($agent->nom, 0, 1)) }}
                         </span>
                     </div>
                     <div class="flex-1 min-w-0">

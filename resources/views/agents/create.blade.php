@@ -19,7 +19,7 @@
             <div class="flex items-center space-x-6">
                 <div class="shrink-0">
                     <img id="photo-preview" class="h-16 w-16 object-cover rounded-full border-2 border-gray-200"
-                         src="https://via.placeholder.com/64x64/1e40af/ffffff?text=?" alt="Photo de profil">
+                         src="{{ asset('images/profil.jpg') }}" alt="Photo de profil">
                 </div>
                 <label class="block">
                     <span class="sr-only">Choisir une photo de profil</span>
@@ -44,21 +44,11 @@
                 </div>
 
                 <div>
-                    <label for="nom" class="block text-sm font-medium text-gray-700">Nom *</label>
+                    <label for="nom" class="block text-sm font-medium text-gray-700">Nom Complet*</label>
                     <input type="text" name="nom" id="nom" required
                            value="{{ old('nom') }}"
                            class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('nom')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="prenoms" class="block text-sm font-medium text-gray-700">Prénoms *</label>
-                    <input type="text" name="prenoms" id="prenoms" required
-                           value="{{ old('prenoms') }}"
-                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                    @error('prenoms')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -148,15 +138,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="direction" class="block text-sm font-medium text-gray-700">Direction *</label>
-                    <select name="direction" id="direction" required
+                    <select name="direction_id" id="direction" required
                             class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                        <option value="">Sélectionnez...</option>
-                        <option value="Direction Générale" {{ old('direction') == 'Direction Générale' ? 'selected' : '' }}>Direction Générale</option>
-                        <option value="Direction RH" {{ old('direction') == 'Direction RH' ? 'selected' : '' }}>Direction RH</option>
-                        <option value="Direction Financière" {{ old('direction') == 'Direction Financière' ? 'selected' : '' }}>Direction Financière</option>
-                        <option value="Direction Technique" {{ old('direction') == 'Direction Technique' ? 'selected' : '' }}>Direction Technique</option>
-                        <option value="Direction Administrative" {{ old('direction') == 'Direction Administrative' ? 'selected' : '' }}>Direction Administrative</option>
-                        <option value="Direction Commerciale" {{ old('direction') == 'Direction Commerciale' ? 'selected' : '' }}>Direction Commerciale</option>
+                        <option value="">Sélectionnez une direction...</option>
+                        @foreach(\App\Models\Direction::all() as $direction)
+                            <option value="{{ $direction->id }}" {{ old('direction_id') == $direction->id ? 'selected' : '' }}>
+                                {{ $direction->name }}
+                            </option>
+                        @endforeach
                     </select>
                     @error('direction')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -165,116 +154,44 @@
 
                 <div>
                     <label for="service" class="block text-sm font-medium text-gray-700">Service *</label>
-                    <input type="text" name="service" id="service" required
-                           value="{{ old('service') }}"
-                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                   <select name="service_id" id="service" required
+                            class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                        <option value="">Sélectionnez une service...</option>
+                        @foreach(\App\Models\Service::all() as $service)
+                            <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
+                                {{ $service->name }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('service')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="poste" class="block text-sm font-medium text-gray-700">Poste *</label>
-                    <input type="text" name="poste" id="poste" required
-                           value="{{ old('poste') }}"
-                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                    @error('poste')
+                    <label for="role_id" class="block text-sm font-medium text-gray-700">Grade/Fonction *</label>
+                    <select name="role_id" id="role_id"
+                        class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                        <option value="">Sélectionnez un rôle...</option>
+                        @foreach(\App\Models\Role::where('is_active', true)->orderBy('display_name')->get() as $role)
+                            <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                {{ $role->display_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('role_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="date_recrutement" class="block text-sm font-medium text-gray-700">Date de Recrutement *</label>
+                    <label for="date_recrutement" class="block text-sm font-medium text-gray-700">Date d'Engagement *</label>
                     <input type="date" name="date_recrutement" id="date_recrutement" required
                            value="{{ old('date_recrutement') }}"
                            class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('date_recrutement')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
-                </div>
-            </div>
-
-            <hr class="border-gray-200">
-
-            <!-- Section Compte Utilisateur -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h4 class="text-lg font-medium text-blue-900 mb-4 flex items-center">
-                    <i class="bx bx-user-plus mr-2"></i>
-                    Création du Compte Utilisateur (Optionnel)
-                </h4>
-                <p class="text-sm text-blue-800 mb-4">
-                    Cochez cette option pour créer automatiquement un compte utilisateur associé à cet agent.
-                </p>
-
-                <div class="space-y-4">
-                    <div class="flex items-center">
-                        <input type="checkbox" name="create_user_account" id="create_user_account"
-                               value="1" {{ old('create_user_account') ? 'checked' : '' }}
-                               onchange="toggleUserAccountFields()"
-                               class="h-4 w-4 text-anadec-blue focus:ring-anadec-blue border-gray-300 rounded">
-                        <label for="create_user_account" class="ml-2 block text-sm font-medium text-blue-900">
-                            Créer un compte utilisateur pour cet agent
-                        </label>
-                    </div>
-
-                    <div id="user-account-fields" class="space-y-4" style="display: none;">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="user_email" class="block text-sm font-medium text-gray-700">Email de connexion</label>
-                                <input type="email" name="user_email" id="user_email"
-                                       value="{{ old('user_email') }}"
-                                       placeholder="Sera utilisé pour la connexion"
-                                       class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                                @error('user_email')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                <p class="mt-1 text-xs text-gray-500">Si vide, l'email de l'agent sera utilisé</p>
-                            </div>
-
-                            <div>
-                                <label for="user_password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
-                                <input type="password" name="user_password" id="user_password"
-                                       placeholder="Laissez vide pour générer automatiquement"
-                                       class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                                @error('user_password')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                                <p class="mt-1 text-xs text-gray-500">Si vide, le mot de passe sera "password"</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="role_id" class="block text-sm font-medium text-gray-700">Rôle dans le système</label>
-                            <select name="role_id" id="role_id"
-                                    class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                                <option value="">Sélectionnez un rôle...</option>
-                                @foreach(\App\Models\Role::where('is_active', true)->orderBy('display_name')->get() as $role)
-                                    <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
-                                        {{ $role->display_name }} - {{ $role->description }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('role_id')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
-                            <p class="mt-1 text-xs text-gray-500">Définit les permissions d'accès au système</p>
-                        </div>
-
-                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                            <div class="flex items-start">
-                                <i class="bx bx-info-circle text-yellow-600 mr-2 mt-0.5"></i>
-                                <div class="text-sm text-yellow-800">
-                                    <p class="font-medium mb-1">Informations importantes :</p>
-                                    <ul class="list-disc list-inside space-y-1 text-xs">
-                                        <li>L'agent pourra se connecter au système avec ces identifiants</li>
-                                        <li>Le rôle détermine les fonctionnalités accessibles</li>
-                                        <li>Ces paramètres peuvent être modifiés ultérieurement</li>
-                                        <li>Un email de bienvenue sera envoyé (si configuré)</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 

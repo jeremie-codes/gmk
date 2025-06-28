@@ -46,8 +46,7 @@ class DemandeVehiculeController extends Controller
                 $q->where('destination', 'like', "%{$search}%")
                   ->orWhere('motif', 'like', "%{$search}%")
                   ->orWhereHas('agent', function($subQ) use ($search) {
-                      $subQ->where('nom', 'like', "%{$search}%")
-                           ->orWhere('prenoms', 'like', "%{$search}%");
+                      $subQ->where('nom', 'like', "%{$search}%");
                   });
             });
         }
@@ -129,7 +128,9 @@ class DemandeVehiculeController extends Controller
 
         $chauffeurs = Chauffeur::all() ?? [];
 
-        return view('demandes-vehicules.create', compact('agents', 'directions', 'chauffeurs'));
+        $vehicules = Vehicule::where('disponible', true)->get() ?? [];
+
+        return view('demandes-vehicules.create', compact('agents', 'directions', 'chauffeurs', 'vehicules'));
     }
 
     public function store(Request $request)
@@ -137,7 +138,7 @@ class DemandeVehiculeController extends Controller
         try {
             $validated = $request->validate([
             'agent_id' => 'required|exists:agents,id',
-            'chauffeur_id' => 'required|exists:chauffeurs,id',
+            'vehicule_id' => 'required|exists:vehicules,id',
             'destination' => 'required|string|max:255',
             'motif' => 'required|string|max:1000',
             'date_heure_sortie' => 'required|date|after_or_equal:today',
@@ -145,6 +146,8 @@ class DemandeVehiculeController extends Controller
             'nombre_passagers' => 'required|integer|min:1|max:50',
             'urgence' => 'required|in:faible,normale,elevee,critique',
         ]);
+
+        // dd($validated);
 
         DemandeVehicule::create($validated);
 
@@ -231,8 +234,7 @@ class DemandeVehiculeController extends Controller
                 $q->where('destination', 'like', "%{$search}%")
                   ->orWhere('motif', 'like', "%{$search}%")
                   ->orWhereHas('agent', function($subQ) use ($search) {
-                      $subQ->where('nom', 'like', "%{$search}%")
-                           ->orWhere('prenoms', 'like', "%{$search}%");
+                      $subQ->where('nom', 'like', "%{$search}%");
                   });
             });
         }

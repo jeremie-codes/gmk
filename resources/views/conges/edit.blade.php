@@ -163,7 +163,7 @@
                             Justificatif Médical
                         </h4>
                         <div class="text-sm text-yellow-800">
-                            <p id="justificatif-message">Pour les congés maladie, il est recommandé de fournir un justificatif médical.</p>
+                            <p id="justificatif-message">Pour le congé maladie, veillez fournir un justificatif médical.</p>
                         </div>
                     </div>
 
@@ -219,7 +219,7 @@
                 <button type="submit" id="submit-btn" disabled
                         class="bg-anadec-blue text-white px-6 py-2 rounded-md hover:bg-anadec-dark-blue disabled:bg-gray-400 disabled:cursor-not-allowed">
                     <i class="bx bx-save mr-2"></i>
-                    Enregistrer les Modifications
+                    Enregistrer {{ Auth::user()->role->name == 'rh' ? '& Valider': '' }}
                 </button>
             </div>
         </form>
@@ -311,7 +311,7 @@
         if (type === 'maladie') {
             justificatifContainer.classList.remove('hidden');
             justificatifInfo.style.display = 'block';
-            justificatifMessage.textContent = 'Pour les congés maladie, il est fortement recommandé de fournir un justificatif médical.';
+            justificatifMessage.textContent = 'Pour le congé maladie, veillez fournir un justificatif médical.';
             justificatifRequired.classList.add('hidden');
             justificatifOptional.classList.remove('hidden');
         } else if (type === 'maternite' || type === 'paternite') {

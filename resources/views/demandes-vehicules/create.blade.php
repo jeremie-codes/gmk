@@ -21,34 +21,20 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Informations du demandeur -->
                 <div class="space-y-6">
-                    <div>
-                        <label for="demandeur_id" class="block text-sm font-medium text-gray-700">Demandeur *</label>
-                        <select name="agent_id" id="demandeur_id" required
-                                class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                            <option value="">Sélectionnez un agent...</option>
-                            @foreach($agents as $agent)
-                                <option value="{{ $agent->id }}" {{ old('demandeur_id') == $agent->id ? 'selected' : '' }}>
-                                    {{ $agent->full_name }} ({{ $agent->matricule }}) - {{ $agent->direction }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('agent_id')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <input type="hidden" value="{{ Auth::user()->agent->id }}" name="agent_id" id="agent_id" required>
 
                     <div>
-                        <label for="chauffeur_id" class="block text-sm font-medium text-gray-700">Chauffeur souhaité</label>
-                        <select name="chauffeur_id" id="chauffeur_id"
+                        <label for="vehicule_id" class="block text-sm font-medium text-gray-700">Véhicule</label>
+                        <select name="vehicule_id" id="vehicule_id"
                                 class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                             <option value="">Aucune préférence</option>
-                            @foreach($chauffeurs as $chauffeur)
-                                <option value="{{ $chauffeur->id }}" {{ old('chauffeur_id') == $chauffeur->id ? 'selected' : '' }}>
-                                    {{ $chauffeur->agent->full_name }} ({{ $chauffeur->categorie_permis }})
+                            @foreach($vehicules as $vehicule)
+                                <option value="{{ $vehicule->id }}" {{ old('vehicule_id') == $vehicule->id ? 'selected' : '' }}>
+                                    {{ $vehicule->marque }} ({{ $vehicule->nombre_places . ' places' }})
                                 </option>
                             @endforeach
                         </select>
-                        @error('chauffeur_id')
+                        @error('vehicule_id')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>

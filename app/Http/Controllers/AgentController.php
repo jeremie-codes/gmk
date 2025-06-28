@@ -32,7 +32,6 @@ class AgentController extends Controller
             $search = $request->search;
             $query->where(function($q) use ($search) {
                 $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenoms', 'like', "%{$search}%")
                   ->orWhere('matricule', 'like', "%{$search}%");
             });
         }
@@ -53,22 +52,24 @@ class AgentController extends Controller
 
     public function create()
     {
-        return view('agents.create');
+        $roles = Role::where('is_active', true);
+        return view('agents.create', compact('roles'));
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        try {
+            $validated = $request->validate([
             'matricule' => 'required|string|unique:agents',
             'nom' => 'required|string|max:255',
-            'prenoms' => 'required|string|max:255',
             'date_naissance' => 'required|date',
             'lieu_naissance' => 'required|string|max:255',
             'sexe' => 'required|in:M,F',
             'situation_matrimoniale' => 'required|string',
-            'direction' => 'required|string',
-            'service' => 'required|string',
-            'poste' => 'required|string',
+
+            'role_id' => 'required',
+            'service_id' => 'required',
+            'direction_id' => 'required',
             'date_recrutement' => 'required|date',
             'telephone' => 'nullable|string',
             'email' => 'nullable|email',
@@ -101,6 +102,11 @@ class AgentController extends Controller
         return redirect()->route('agents.index')
             ->with('success', 'Agent créé avec succès.' .
                 ($request->boolean('create_user_account') ? ' Un compte utilisateur a également été créé.' : ''));
+        } catch (\Throwable $th) {
+            return redirect()->back()
+                ->with('error', 'Une erreur est survenue lors de la création de l\'agent. Veuillez réessayer., ' . $th->getMessage())
+                ->withInput();
+        }
     }
 
     private function createUserAccount(Agent $agent, array $validated)
@@ -110,7 +116,7 @@ class AgentController extends Controller
 
         if (!$userEmail) {
             // Générer un email basé sur le nom si aucun email n'est fourni
-            $userEmail = strtolower(Str::slug($agent->prenoms . '.' . $agent->nom)) . '@anadec.com';
+            $userEmail = strtolower(Str::slug($agent->nom)) . '@anadec.com';
         }
 
         // Déterminer le mot de passe
@@ -121,7 +127,6 @@ class AgentController extends Controller
             'name' => $agent->full_name,
             'email' => $userEmail,
             'password' => Hash::make($password),
-            'role_id' => $validated['role_id'] ?? null,
         ]);
 
         // Associer l'agent à l'utilisateur
@@ -137,45 +142,58 @@ class AgentController extends Controller
 
     public function edit(Agent $agent)
     {
-        return view('agents.edit', compact('agent'));
+        $roles = Role::where('is_active', true);
+        return view('agents.edit', compact('agent', 'roles'));
     }
 
     public function update(Request $request, Agent $agent)
     {
-        $validated = $request->validate([
-            'matricule' => 'required|string|unique:agents,matricule,' . $agent->id,
-            'nom' => 'required|string|max:255',
-            'prenoms' => 'required|string|max:255',
-            'date_naissance' => 'required|date',
-            'lieu_naissance' => 'required|string|max:255',
-            'sexe' => 'required|in:M,F',
-            'situation_matrimoniale' => 'required|string',
-            'direction' => 'required|string',
-            'service' => 'required|string',
-            'poste' => 'required|string',
-            'date_recrutement' => 'required|date',
-            'telephone' => 'nullable|string',
-            'email' => 'nullable|email',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'adresse' => 'nullable|string',
-            'statut' => 'required|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'matricule' => 'required|string|unique:agents,matricule,' . $agent->id,
+                'nom' => 'required|string|max:255',
+                'date_naissance' => 'required|date',
+                'lieu_naissance' => 'required|string|max:255',
+                'sexe' => 'required|in:M,F',
+                'situation_matrimoniale' => 'required|string',
+                'role_id' => 'required',
+                'service_id' => 'required',
+                'direction_id' => 'required',
+                'date_recrutement' => 'required|date',
+                'telephone' => 'nullable|string',
+                'email' => 'nullable|email',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'adresse' => 'nullable|string',
+                'statut' => 'required|string',
+            ]);
 
-        // Gestion de l'upload de photo
-        if ($request->hasFile('photo')) {
-            // Supprimer l'ancienne photo si elle existe
-            if ($agent->photo && Storage::disk('public')->exists($agent->photo)) {
-                Storage::disk('public')->delete($agent->photo);
+            // dd($validated);
+
+            // Gestion de l'upload de photo
+            if ($request->hasFile('photo')) {
+                // Supprimer l'ancienne photo si elle existe
+                if ($agent->photo && Storage::disk('public')->exists($agent->photo)) {
+                    Storage::disk('public')->delete($agent->photo);
+                }
+
+                $photoPath = $request->file('photo')->store('agents/photos', 'public');
+                $validated['photo'] = $photoPath;
             }
 
-            $photoPath = $request->file('photo')->store('agents/photos', 'public');
-            $validated['photo'] = $photoPath;
+            $agent->update($validated);
+
+                   // Créer le compte utilisateur si demandé
+            if ($request->boolean('create_user_account')) {
+                $this->createUserAccount($agent, $validated);
+            }
+
+            return redirect()->route('agents.index')
+                ->with('success', 'Agent modifié avec succès.');
+
+        } catch (\Throwable $th) {
+            return redirect()->back()
+                ->with('error', 'Erreur :' . $th->getMessage());
         }
-
-        $agent->update($validated);
-
-        return redirect()->route('agents.index')
-            ->with('success', 'Agent modifié avec succès.');
     }
 
     public function destroy(Agent $agent)
@@ -197,7 +215,6 @@ class AgentController extends Controller
         $agents = Agent::where('statut', 'actif')
             ->when($request->search, function($query, $search) {
                 $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%")
                       ->orWhere('matricule', 'like', "%{$search}%");
             })
             ->orderBy('nom')
@@ -210,8 +227,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'retraite')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_retraite', 'desc')
             ->paginate(10);
@@ -223,8 +239,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'malade')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_maladie', 'desc')
             ->paginate(10);
@@ -236,8 +251,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'demission')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_demission', 'desc')
             ->paginate(10);
@@ -249,8 +263,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'revocation')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_revocation', 'desc')
             ->paginate(10);
@@ -262,8 +275,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'disponibilite')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_disponibilite', 'desc')
             ->paginate(10);
@@ -275,8 +287,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'detachement')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_detachement', 'desc')
             ->paginate(10);
@@ -288,8 +299,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'mutation')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_mutation', 'desc')
             ->paginate(10);
@@ -301,8 +311,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'reintegration')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_reintegration', 'desc')
             ->paginate(10);
@@ -314,8 +323,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'mission')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_mission', 'desc')
             ->paginate(10);
@@ -327,8 +335,7 @@ class AgentController extends Controller
     {
         $agents = Agent::where('statut', 'deces')
             ->when($request->search, function($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                      ->orWhere('prenoms', 'like', "%{$search}%");
+                $query->where('nom', 'like', "%{$search}%");
             })
             ->orderBy('date_deces', 'desc')
             ->paginate(10);

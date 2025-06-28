@@ -16,7 +16,7 @@ class User extends Authenticatable
         'email',
         'photo',
         'password',
-        'role_id',
+        'permissions',
     ];
 
     protected $hidden = [
@@ -27,17 +27,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'permissions' => 'array',
     ];
 
     // Relations
     public function agent()
     {
         return $this->hasOne(Agent::class);
-    }
-
-    public function role()
-    {
-        return $this->belongsTo(Role::class);
     }
 
     // Méthodes utilitaires pour la photo
@@ -70,17 +66,23 @@ class User extends Authenticatable
     // Méthodes de permissions
     public function hasPermission($permission)
     {
-        return $this->role && $this->role->hasPermission($permission);
+        // Vérifier d'abord les permissions spécifiques à l'utilisateur
+        if (is_array($this->permissions) && in_array($permission, $this->permissions)) {
+            return true;
+        }
+
+        // Si l'utilisateur n'a pas la permission spécifique, vérifier les permissions du rôle
+        return $this->agent && $this->agent->role && $this->agent->role->hasPermission($permission);
     }
 
     public function hasRole($roleName)
     {
-        return $this->role && $this->role->name === $roleName;
+        return $this->agent && $this->agent->role && $this->agent->role->name === $roleName;
     }
 
     public function hasAnyRole(array $roles)
     {
-        return $this->role && in_array($this->role->name, $roles);
+        return $this->agent && $this->agent->role && in_array($this->agent->role->name, $roles);
     }
 
     // Vérifier si l'utilisateur peut accéder à une ressource
@@ -90,21 +92,57 @@ class User extends Authenticatable
         return $this->hasPermission($permission);
     }
 
-    // Vérifier si l'utilisateur est un administrateur
-    public function isAdmin()
-    {
-        return $this->hasRole('drh');
-    }
-
     // Vérifier si l'utilisateur est un directeur
     public function isDirecteur()
     {
-        return $this->hasAnyRole(['directeur', 'sous_directeur', 'drh']);
+        return $this->hasAnyRole(['directeur', 'sous-directeur']);
     }
 
-    // Vérifier si l'utilisateur est du personnel RH
-    public function isRH()
+    // Vérifier si l'utilisateur est un chef
+    public function isChef()
     {
-        return $this->hasAnyRole(['rh', 'drh']);
+        return $this->hasAnyRole(['directeur', 'sous-directeur', 'chef-service', 'chef-s-principal']);
+    }
+
+    // Obtenir le rôle de l'utilisateur
+    public function getRole()
+    {
+        return $this->agent?->role;
+    }
+
+    // Obtenir le nom du rôle
+    public function getRoleName()
+    {
+        return $this->agent?->role?->name;
+    }
+
+    // Obtenir le nom d'affichage du rôle
+    public function getRoleDisplayName()
+    {
+        return $this->agent?->role?->display_name ?? 'Aucun rôle';
+    }
+
+    // Gestion des permissions spécifiques à l'utilisateur
+    public function grantPermission($permission)
+    {
+        $permissions = $this->permissions ?? [];
+        if (!in_array($permission, $permissions)) {
+            $permissions[] = $permission;
+            $this->permissions = $permissions;
+            $this->save();
+        }
+    }
+
+    public function revokePermission($permission)
+    {
+        $permissions = $this->permissions ?? [];
+        $this->permissions = array_values(array_diff($permissions, [$permission]));
+        $this->save();
+    }
+
+    public function syncPermissions(array $permissions)
+    {
+        $this->permissions = $permissions;
+        $this->save();
     }
 }

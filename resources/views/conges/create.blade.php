@@ -92,7 +92,7 @@
                     <div id="justificatif-container" class="hidden">
                         <label for="justificatif" class="block text-sm font-medium text-gray-700">
                             Justificatif
-                            <span id="justificatif-required" class="text-red-600 hidden">*</span>
+                            {{-- <span id="justificatif-required" class="text-red-600 hidden">*</span> --}}
                             <span id="justificatif-optional" class="text-gray-500">(facultatif)</span>
                         </label>
                         <div class="mt-1 flex items-center">
@@ -146,7 +146,7 @@
                             Justificatif Médical
                         </h4>
                         <div class="text-sm text-yellow-800">
-                            <p id="justificatif-message">Pour les congés maladie, il est recommandé de fournir un justificatif médical.</p>
+                            <p id="justificatif-message">Pour le congé maladie, veillez fournir un justificatif médical.</p>
                         </div>
                     </div>
 
@@ -294,7 +294,7 @@
         if (type === 'maladie') {
             justificatifContainer.classList.remove('hidden');
             justificatifInfo.style.display = 'block';
-            justificatifMessage.textContent = 'Pour les congés maladie, il est fortement recommandé de fournir un justificatif médical.';
+            justificatifMessage.textContent = 'Pour le congé maladie, veillez fournir un justificatif médical.';
             justificatifRequired.classList.add('hidden');
             justificatifOptional.classList.remove('hidden');
         } else if (type === 'maternite' || type === 'paternite') {

@@ -45,8 +45,7 @@ class DemandeFournitureController extends Controller
                 $q->where('besoin', 'like', "%{$search}%")
                   ->orWhere('service', 'like', "%{$search}%")
                   ->orWhereHas('agent', function($subQ) use ($search) {
-                      $subQ->where('nom', 'like', "%{$search}%")
-                           ->orWhere('prenoms', 'like', "%{$search}%");
+                      $subQ->where('nom', 'like', "%{$search}%");
                   });
             });
         }
@@ -233,8 +232,7 @@ class DemandeFournitureController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('besoin', 'like', "%{$search}%")
                   ->orWhereHas('agent', function($subQ) use ($search) {
-                      $subQ->where('nom', 'like', "%{$search}%")
-                           ->orWhere('prenoms', 'like', "%{$search}%");
+                      $subQ->where('nom', 'like', "%{$search}%");
                   });
             });
         }

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('agents', function (Blueprint $table) {
-            $table->decimal('salaire_base', 12, 2)->nullable()->after('poste');
+            $table->decimal('salaire_base', 12, 2)->nullable()->after('service');
             $table->string('compte_bancaire')->nullable()->after('adresse');
             $table->string('banque')->nullable()->after('compte_bancaire');
             $table->string('numero_cnps')->nullable()->after('banque');

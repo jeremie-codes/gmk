@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Agent;
 use App\Models\User;
+use App\Models\Role;
 use Faker\Factory as Faker;
 use Carbon\Carbon;
 
@@ -19,6 +20,7 @@ class AgentSeeder extends Seeder
 
         // Récupérer les utilisateurs qui n'ont pas encore d'agent associé
         $usersWithoutAgent = User::doesntHave('agent')->get();
+        $roles = Role::all();
 
         // Créer des agents pour les utilisateurs existants sans agent
         foreach ($usersWithoutAgent as $user) {
@@ -27,14 +29,13 @@ class AgentSeeder extends Seeder
                 [
                     'matricule' => 'MAT-' . $faker->unique()->randomNumber(5),
                     'nom' => $user->name,
-                    'prenoms' => $faker->firstName(),
+                    'role_id' => $roles->random()->id,
                     'date_naissance' => $faker->dateTimeBetween('-60 years', '-25 years')->format('Y-m-d'),
                     'lieu_naissance' => $faker->city(),
                     'sexe' => $faker->randomElement(['M', 'F']),
                     'situation_matrimoniale' => $faker->randomElement(['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']),
                     'direction' => $faker->randomElement(['Direction Générale', 'Direction RH', 'Direction Financière', 'Direction Technique', 'Direction Administrative', 'Direction Commerciale']),
                     'service' => $faker->randomElement(['Comptabilité', 'Informatique', 'Marketing', 'Ressources Humaines', 'Logistique', 'Commercial']),
-                    'poste' => $faker->jobTitle(),
                     'salaire_base' => $faker->randomFloat(2, 500000, 2000000),
                     'date_recrutement' => $faker->dateTimeBetween('-10 years', 'now')->format('Y-m-d'),
                     'telephone' => $faker->phoneNumber(),
@@ -56,15 +57,13 @@ class AgentSeeder extends Seeder
                 ['matricule' => 'MAT-' . $faker->unique()->randomNumber(5)],
                 [
                     'user_id' => null,
-                    'nom' => $faker->lastName(),
-                    'prenoms' => $faker->firstName(),
+                    'nom' => $faker->firstName(),
                     'date_naissance' => $faker->dateTimeBetween('-60 years', '-25 years')->format('Y-m-d'),
                     'lieu_naissance' => $faker->city(),
                     'sexe' => $faker->randomElement(['M', 'F']),
                     'situation_matrimoniale' => $faker->randomElement(['Célibataire', 'Marié(e)', 'Divorcé(e)', 'Veuf(ve)']),
                     'direction' => $faker->randomElement(['Direction Générale', 'Direction RH', 'Direction Financière', 'Direction Technique', 'Direction Administrative', 'Direction Commerciale']),
                     'service' => $faker->randomElement(['Comptabilité', 'Informatique', 'Marketing', 'Ressources Humaines', 'Logistique', 'Commercial']),
-                    'poste' => $faker->jobTitle(),
                     'salaire_base' => $faker->randomFloat(2, 500000, 2000000),
                     'date_recrutement' => $faker->dateTimeBetween('-10 years', 'now')->format('Y-m-d'),
                     'telephone' => $faker->phoneNumber(),

@@ -12,9 +12,25 @@
             <p class="text-sm text-gray-600">Modifiez les informations de l'agent {{ $agent->full_name }}</p>
         </div>
 
-        <form method="POST" action="{{ route('agents.update', $agent) }}" class="p-6 space-y-6">
+        <form method="POST" action="{{ route('agents.update', $agent) }}" enctype="multipart/form-data" class="p-6 space-y-6">
             @csrf
             @method('PUT')
+
+            <!-- Photo de profil -->
+            <div class="flex items-center space-x-6">
+                <div class="shrink-0">
+                    <img id="photo-preview" class="h-16 w-16 object-cover rounded-full border-2 border-gray-200"
+                         src="{{ asset($agent->photo ? 'storage/' . $agent->photo : 'images/profil.jpg') }}" alt="Photo de profil">
+                </div>
+                <label class="block">
+                    <span class="sr-only">Choisir une photo de profil</span>
+                    <input type="file" name="photo" accept="image/*" onchange="previewPhoto(event)"
+                           class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-anadec-blue file:text-white hover:file:bg-anadec-dark-blue">
+                </label>
+            </div>
+            @error('photo')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+            @enderror
 
             <!-- Informations personnelles -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -29,21 +45,11 @@
                 </div>
 
                 <div>
-                    <label for="nom" class="block text-sm font-medium text-gray-700">Nom *</label>
+                    <label for="nom" class="block text-sm font-medium text-gray-700">Nom Complet *</label>
                     <input type="text" name="nom" id="nom" required
                            value="{{ old('nom', $agent->nom) }}"
                            class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
                     @error('nom')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label for="prenoms" class="block text-sm font-medium text-gray-700">Prénoms *</label>
-                    <input type="text" name="prenoms" id="prenoms" required
-                           value="{{ old('prenoms', $agent->prenoms) }}"
-                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                    @error('prenoms')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -133,15 +139,14 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label for="direction" class="block text-sm font-medium text-gray-700">Direction *</label>
-                    <select name="direction" id="direction" required
+                    <select name="direction_id" id="direction" required
                             class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                        <option value="">Sélectionnez...</option>
-                        <option value="Direction Générale" {{ old('direction', $agent->direction) == 'Direction Générale' ? 'selected' : '' }}>Direction Générale</option>
-                        <option value="Direction RH" {{ old('direction', $agent->direction) == 'Direction RH' ? 'selected' : '' }}>Direction RH</option>
-                        <option value="Direction Financière" {{ old('direction', $agent->direction) == 'Direction Financière' ? 'selected' : '' }}>Direction Financière</option>
-                        <option value="Direction Technique" {{ old('direction', $agent->direction) == 'Direction Technique' ? 'selected' : '' }}>Direction Technique</option>
-                        <option value="Direction Administrative" {{ old('direction', $agent->direction) == 'Direction Administrative' ? 'selected' : '' }}>Direction Administrative</option>
-                        <option value="Direction Commerciale" {{ old('direction', $agent->direction) == 'Direction Commerciale' ? 'selected' : '' }}>Direction Commerciale</option>
+                        <option value="">Sélectionnez une direction...</option>
+                        @foreach(\App\Models\Direction::all() as $direction)
+                            <option value="{{ $direction->id }}" {{ $direction->id  == $agent->direction_id ? 'selected' : '' }}>
+                                {{ $direction->name }}
+                            </option>
+                        @endforeach
                     </select>
                     @error('direction')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -150,26 +155,38 @@
 
                 <div>
                     <label for="service" class="block text-sm font-medium text-gray-700">Service *</label>
-                    <input type="text" name="service" id="service" required
-                           value="{{ old('service', $agent->service) }}"
-                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                   <select name="service_id" id="service" required
+                            class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                        <option value="">Sélectionnez une service...</option>
+                        @foreach(\App\Models\Service::all() as $service)
+                            <option value="{{ $service->id }}" {{ $service->id == $agent->service_id ? 'selected' : '' }}>
+                                {{ $service->name }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('service')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="poste" class="block text-sm font-medium text-gray-700">Poste *</label>
-                    <input type="text" name="poste" id="poste" required
-                           value="{{ old('poste', $agent->poste) }}"
-                           class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
-                    @error('poste')
+                    <label for="role_id" class="block text-sm font-medium text-gray-700">Grade/Fonction *</label>
+                    <select name="role_id" id="role_id"
+                        class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
+                        <option value="">Sélectionnez un rôle...</option>
+                        @foreach(\App\Models\Role::where('is_active', true)->orderBy('display_name')->get() as $role)
+                            <option value="{{ $role->id }}" {{ $role->id  == $agent->role_id ? 'selected' : '' }}>
+                                {{ $role->display_name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('role_id')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label for="date_recrutement" class="block text-sm font-medium text-gray-700">Date de Recrutement *</label>
+                    <label for="date_recrutement" class="block text-sm font-medium text-gray-700">Date d'Engagement *</label>
                     <input type="date" name="date_recrutement" id="date_recrutement" required
                            value="{{ old('date_recrutement', $agent->date_recrutement->format('Y-m-d')) }}"
                            class="mt-1 py-2 px-4 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-anadec-blue focus:border-anadec-blue">
@@ -200,50 +217,6 @@
                 </div>
             </div>
 
-            <!-- Informations du compte utilisateur associé -->
-            @if($agent->user)
-            <hr class="border-gray-200">
-
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
-                <h4 class="text-lg font-medium text-blue-900 mb-4 flex items-center">
-                    <i class="bx bx-user-check mr-2"></i>
-                    Compte Utilisateur Associé
-                </h4>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <span class="font-medium text-blue-800">Nom :</span>
-                        <span class="text-blue-700">{{ $agent->user->name }}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium text-blue-800">Email :</span>
-                        <span class="text-blue-700">{{ $agent->user->email }}</span>
-                    </div>
-                    <div>
-                        <span class="font-medium text-blue-800">Rôle :</span>
-                        @if($agent->user->role)
-                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $agent->user->role->getBadgeClass() }}">
-                                {{ $agent->user->role->display_name }}
-                            </span>
-                        @else
-                            <span class="text-gray-500">Aucun rôle</span>
-                        @endif
-                    </div>
-                    <div>
-                        <span class="font-medium text-blue-800">Créé le :</span>
-                        <span class="text-blue-700">{{ $agent->user->created_at->format('d/m/Y') }}</span>
-                    </div>
-                </div>
-
-                <div class="mt-4 pt-4 border-t border-blue-200">
-                    <a href="{{ route('roles.users') }}"
-                       class="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                        <i class="bx bx-edit mr-1"></i>
-                        Modifier le rôle de cet utilisateur
-                    </a>
-                </div>
-            </div>
-            @endif
 
             <!-- Boutons d'action -->
             <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
@@ -260,4 +233,29 @@
         </form>
     </div>
 </div>
+
+
+<script>
+function toggleUserAccountFields() {
+    const checkbox = document.getElementById('create_user_account');
+    const fields = document.getElementById('user-account-fields');
+
+    if (checkbox.checked) {
+        fields.style.display = 'block';
+        // Auto-remplir l'email si disponible
+        const agentEmail = document.getElementById('email').value;
+        const userEmail = document.getElementById('user_email');
+        if (agentEmail && !userEmail.value) {
+            userEmail.value = agentEmail;
+        }
+    } else {
+        fields.style.display = 'none';
+    }
+}
+
+// Initialiser l'affichage au chargement
+document.addEventListener('DOMContentLoaded', function() {
+    toggleUserAccountFields();
+});
+</script>
 @endsection

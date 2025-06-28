@@ -32,13 +32,15 @@ class CongeSeeder extends Seeder
                 // Convertir $dateDebut en instance Carbon avant d'appeler addDays()
                 $dateFin = Carbon::instance($dateDebut)->addDays($faker->numberBetween(5, 30));
                 $type = $faker->randomElement(['annuel', 'maladie', 'maternite', 'paternite', 'exceptionnel']);
-                $statut = $faker->randomElement(['en_attente', 'approuve_directeur', 'valide_drh', 'rejete']);
+                $statut = $faker->randomElement(['en_attente', 'approuve_directeur', 'valide_drh', 'rejete', 'traiter_rh']);
                 $justificatif = null;
                 $commentaireDirecteur = null;
                 $commentaireDrh = null;
                 $approuveParDirecteur = null;
+                $traiterParRh = null;
                 $valideParDrh = null;
                 $dateApprobationDirecteur = null;
+                $dateTraiterRh = null;
                 $dateValidationDrh = null;
 
                 if ($type !== 'annuel' && $faker->boolean(70)) { // 70% de chance d'avoir un justificatif pour les non-annuels
@@ -46,11 +48,19 @@ class CongeSeeder extends Seeder
                     $justificatif = 'conges/justificatifs/' . $faker->uuid() . '.pdf';
                 }
 
-                if ($statut === 'approuve_directeur' || $statut === 'valide_drh' || $statut === 'rejete') {
+                if ($statut === 'approuve_directeur' || $statut === 'traiter_rh' || $statut === 'valide_drh' || $statut === 'rejete') {
                     $approuveParDirecteur = $users->random()->id;
                     // Convertir $dateDebut en instance Carbon avant d'appeler subDays()
                     $dateApprobationDirecteur = Carbon::instance($dateDebut)->subDays($faker->numberBetween(1, 5));
+                    $dateTraiterRh = Carbon::instance($dateDebut)->subDays($faker->numberBetween(1, 5));
                     $commentaireDirecteur = $faker->sentence();
+                }
+
+                if ($statut === 'traite_rh' || $statut === 'rejete') {
+                    $traiterParRh = $users->random()->id;
+                    // Convertir $dateTraiterRh en instance Carbon avant d'appeler addDays()
+                    $dateValidationDrh = Carbon::instance($dateTraiterRh)->addDays($faker->numberBetween(1, 3));
+                    $commentaireDrh = $faker->sentence();
                 }
 
                 if ($statut === 'valide_drh' || $statut === 'rejete') {
@@ -73,7 +83,9 @@ class CongeSeeder extends Seeder
                     'commentaire_drh' => $commentaireDrh,
                     'date_approbation_directeur' => $dateApprobationDirecteur,
                     'date_validation_drh' => $dateValidationDrh,
+                    'date_traiter_rh' => $dateValidationDrh,
                     'approuve_par_directeur' => $approuveParDirecteur,
+                    'traiter_par_rh' => $traiterParRh,
                     'valide_par_drh' => $valideParDrh,
                 ]);
             }

@@ -39,7 +39,6 @@ class CotationController extends Controller
             $search = $request->search;
             $query->whereHas('agent', function($q) use ($search) {
                 $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenoms', 'like', "%{$search}%")
                   ->orWhere('matricule', 'like', "%{$search}%");
             });
         }

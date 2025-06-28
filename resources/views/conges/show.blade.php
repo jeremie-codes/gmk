@@ -141,7 +141,7 @@
                             <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
                                 <i class="bx bx-time text-white"></i>
                             </div>
-                        @elseif(in_array($conge->statut, ['approuve_directeur', 'valide_drh']))
+                        @elseif(in_array($conge->statut, ['approuve_directeur', 'valide_drh', 'traiter_rh']))
                             <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                                 <i class="bx bx-check text-white"></i>
                             </div>
@@ -163,7 +163,35 @@
                         </div>
                     </div>
 
-                    <!-- Étape 3: Validation DRH -->
+                    <!-- Étape 3: Approbation directeur -->
+                    <div class="flex items-center space-x-3">
+                        @if($conge->statut === 'en_attente')
+                            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <i class="bx bx-time text-white"></i>
+                            </div>
+                        @elseif(in_array($conge->statut, ['traiter_rh', 'valide_drh']))
+                            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                                <i class="bx bx-check text-white"></i>
+                            </div>
+                        @else
+                            <div class="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
+                                <i class="bx bx-x text-white"></i>
+                            </div>
+                        @endif
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900">Traité RH</p>
+                            @if($conge->date_approbation_directeur)
+                                <p class="text-sm text-gray-600">{{ $conge->date_approbation_directeur->format('d/m/Y à H:i') }}</p>
+                                @if($conge->approbateurDirecteur)
+                                    <p class="text-xs text-gray-500">Par {{ $conge->approbateurDirecteur->name }}</p>
+                                @endif
+                            @else
+                                <p class="text-sm text-yellow-600">En attente</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <!-- Étape 4: Validation DRH -->
                     <div class="flex items-center space-x-3">
                         @if(in_array($conge->statut, ['en_attente', 'approuve_directeur']))
                             <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">

@@ -97,12 +97,11 @@
                     <!-- Filtre par direction -->
                     <select name="direction" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-anadec-blue focus:border-anadec-blue">
                         <option value="">Toutes les directions</option>
-                        <option value="Direction Générale" {{ request('direction') == 'Direction Générale' ? 'selected' : '' }}>Direction Générale</option>
-                        <option value="Direction RH" {{ request('direction') == 'Direction RH' ? 'selected' : '' }}>Direction RH</option>
-                        <option value="Direction Financière" {{ request('direction') == 'Direction Financière' ? 'selected' : '' }}>Direction Financière</option>
-                        <option value="Direction Technique" {{ request('direction') == 'Direction Technique' ? 'selected' : '' }}>Direction Technique</option>
-                        <option value="Direction Administrative" {{ request('direction') == 'Direction Administrative' ? 'selected' : '' }}>Direction Administrative</option>
-                        <option value="Direction Commerciale" {{ request('direction') == 'Direction Commerciale' ? 'selected' : '' }}>Direction Commerciale</option>
+                        @foreach(\App\Models\Direction::all() as $direction)
+                            <option value="{{ $direction->id }}" {{ request('direction') == $direction->id ? 'selected' : '' }}>
+                                {{ $direction->name }}
+                            </option>
+                        @endforeach
                     </select>
 
                     <button type="submit" class="bg-gradient-to-r from-anadec-blue to-anadec-light-blue text-white px-4 py-2 rounded-lg hover:from-anadec-dark-blue hover:to-anadec-blue transition-all">
@@ -127,7 +126,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agent</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Direction</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poste</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Grade/Fonction</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ancienneté</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -158,11 +157,11 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $agent->direction }}</div>
-                            <div class="text-sm text-gray-500">{{ $agent->service }}</div>
+                            <div class="text-sm text-gray-900">{{ $agent->direction->name ?? 'N/A' }}</div>
+                            <div class="text-sm text-gray-500">{{ $agent->service->name ?? 'N/A' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {{ $agent->poste }}
+                            {{ $agent->role->name ?? 'N/A' }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full {{ $agent->getStatutBadgeClass() }}">

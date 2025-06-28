@@ -16,6 +16,8 @@ use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\CourrierController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\ValveController;
+use App\Http\Controllers\DirectionController;
+use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StockController;
 /*
@@ -46,6 +48,33 @@ Route::middleware('auth')->group(function () {
         Route::put('/update', [ProfileController::class, 'update'])->name('update');
         Route::delete('/delete-photo', [ProfileController::class, 'deletePhoto'])->name('delete-photo');
     });
+
+    // Module Gestion des directions
+    Route::prefix('directions')->name('directions.')->group(function () {
+        Route::get('/', [DirectionController::class, 'index'])->name('index');
+        Route::get('/create', [DirectionController::class, 'create'])->name('create');
+        Route::post('/', [DirectionController::class, 'store'])->name('store');
+        Route::get('/{direction}', [DirectionController::class, 'show'])->name('show');
+        Route::get('/{direction}/edit', [DirectionController::class, 'edit'])->name('edit');
+        Route::put('/{direction}', [DirectionController::class, 'update'])->name('update');
+        Route::delete('/{direction}', [DirectionController::class, 'destroy'])->name('destroy');
+        Route::post('/{direction}/toggle-status', [DirectionController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // Module Gestion des services
+    Route::prefix('services')->name('services.')->group(function () {
+        Route::get('/', [ServiceController::class, 'index'])->name('index');
+        Route::get('/create', [ServiceController::class, 'create'])->name('create');
+        Route::post('/', [ServiceController::class, 'store'])->name('store');
+        Route::get('/{service}', [ServiceController::class, 'show'])->name('show');
+        Route::get('/{service}/edit', [ServiceController::class, 'edit'])->name('edit');
+        Route::put('/{service}', [ServiceController::class, 'update'])->name('update');
+        Route::delete('/{service}', [ServiceController::class, 'destroy'])->name('destroy');
+        Route::post('/{service}/toggle-status', [ServiceController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    // API pour obtenir les services d'une direction
+    Route::get('/api/directions/{direction}/services', [ServiceController::class, 'getServicesByDirection'])->name('api.services-by-direction');
 
     // Module Gestion des agents
     Route::prefix('agents')->name('agents.')->group(function () {
@@ -137,14 +166,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/{role}/edit', [RoleController::class, 'edit'])->name('edit');
         Route::put('/{role}', [RoleController::class, 'update'])->name('update');
 
-        // Gestion des utilisateurs
-        Route::get('/users/list', [RoleController::class, 'users'])->name('users');
-        Route::put('/users/{user}/role', [RoleController::class, 'updateUserRole'])->name('update-user-role');
+        // Gestion des agents et rôles
+        Route::put('/agents/{agent}/role', [RoleController::class, 'updateAgentRole'])->name('update-agent-role');
+        Route::post('/agents/{agent}/create-user-account', [RoleController::class, 'createUserAccount'])->name('create-user-account');
+        Route::delete('/agents/{agent}/delete-user-account', [RoleController::class, 'deleteUserAccount'])->name('delete-user-account');
+        Route::post('/agents/{agent}/reset-password', [RoleController::class, 'resetPassword'])->name('reset-password');
+
+        // Agents par rôle
+        Route::get('/{role}/agents', [RoleController::class, 'agentsByRole'])->name('agents-by-role');
 
         // Matrice des permissions
         Route::get('/permissions/matrix', [RoleController::class, 'permissions'])->name('permissions');
         Route::post('/permissions/update', [RoleController::class, 'updatePermissions'])->name('update-permissions');
 
+        // Permissions par agent
+        Route::get('/agents/{agent}/permissions', [RoleController::class, 'agentPermissions'])->name('agent-permissions');
+        Route::post('/agents/{agent}/permissions', [RoleController::class, 'updateAgentPermissions'])->name('update-agent-permissions');
     });
 
     // Module Gestion du Stock

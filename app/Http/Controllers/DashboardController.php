@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\Direction;
 use App\Models\Presence;
 use App\Models\Valve;
 use Illuminate\Http\Request;
@@ -31,29 +32,22 @@ class DashboardController extends Controller
             ->count();
 
         // Statistiques par direction (exemple)
-        $directions = [
-            'Direction Générale' => [
-                'total' => Agent::where('direction', 'Direction Générale')->where('statut', 'actif')->count(),
+
+        $directions = [];
+
+        foreach (Direction::all() as $direction) {
+            $directions[$direction->nom] = [
+                'total' => Agent::where('direction_id', $direction->id)
+                    ->where('statut', 'actif')
+                    ->count(),
+
                 'presents' => Presence::whereDate('date', $today)
-                    ->whereHas('agent', function($q) {
-                        $q->where('direction', 'Direction Générale');
-                    })->where('statut', 'present')->count()
-            ],
-            'Direction RH' => [
-                'total' => Agent::where('direction', 'Direction RH')->where('statut', 'actif')->count(),
-                'presents' => Presence::whereDate('date', $today)
-                    ->whereHas('agent', function($q) {
-                        $q->where('direction', 'Direction RH');
-                    })->where('statut', 'present')->count()
-            ],
-            'Direction Financière' => [
-                'total' => Agent::where('direction', 'Direction Financière')->where('statut', 'actif')->count(),
-                'presents' => Presence::whereDate('date', $today)
-                    ->whereHas('agent', function($q) {
-                        $q->where('direction', 'Direction Financière');
-                    })->where('statut', 'present')->count()
-            ]
-        ];
+                    ->where('statut', 'present')
+                    ->whereHas('agent', function ($q) use ($direction) {
+                        $q->where('direction_id', $direction->id);
+                    })->count(),
+            ];
+        }
 
         // Graphique des présences de la semaine
         $weekPresences = [];

@@ -90,6 +90,26 @@
                     <span class="sidebar-text ml-3">Tableau de Bord</span>
                 </a>
 
+                <!-- Gestion des Directions et Services -->
+                <div class="space-y-1">
+                    <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
+                            onclick="toggleSubmenu('structure-submenu')">
+                        <i class="bx bx-buildings text-xl"></i>
+                        <span class="sidebar-text ml-3">Structure Organisationnelle</span>
+                        <i class="bx bx-chevron-down sidebar-text ml-auto"></i>
+                    </button>
+                    <div id="structure-submenu" class="ml-4 space-y-1 {{ request()->routeIs('directions.*') || request()->routeIs('services.*') ? '' : 'hidden' }}">
+                        <a href="{{ route('directions.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-building text-lg"></i>
+                            <span class="sidebar-text ml-3">Directions</span>
+                        </a>
+                        <a href="{{ route('services.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                            <i class="bx bx-briefcase text-lg"></i>
+                            <span class="sidebar-text ml-3">Services</span>
+                        </a>
+                    </div>
+                </div>
+
                 <!-- Gestion des Agents -->
                 <div class="space-y-1">
                     <button class="flex items-center w-full px-2 py-2 text-sm font-medium text-white rounded-md hover:bg-anadec-light-blue"
@@ -460,17 +480,20 @@
                     </button>
                     <div id="roles-submenu" class="ml-4 space-y-1 {{ request()->routeIs('roles.*') ? '' : 'hidden' }}">
                         <a href="{{ route('roles.index') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
-                            <i class="bx bx-user-check text-lg"></i>
-                            <span class="sidebar-text ml-3">Gestion des Rôles</span>
-                        </a>
-                        <a href="{{ route('roles.users') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
                             <i class="bx bx-group text-lg"></i>
-                            <span class="sidebar-text ml-3">Utilisateurs</span>
+                            <span class="sidebar-text ml-3">Gestion des Agents</span>
+
                         </a>
                         <a href="{{ route('roles.permissions') }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
                             <i class="bx bx-shield text-lg"></i>
                             <span class="sidebar-text ml-3">Matrice Permissions</span>
                         </a>
+                        @foreach(\App\Models\Role::where('is_active', true)->orderBy('display_name')->get() as $role)
+                            <a href="{{ route('roles.show', $role) }}" class="flex items-center px-2 py-2 text-sm text-gray-300 rounded-md hover:text-white hover:bg-anadec-light-blue">
+                                <i class="bx {{ $role->getIcon() }} text-lg"></i>
+                                <span class="sidebar-text ml-3">{{ $role->display_name }}</span>
+                            </a>
+                        @endforeach
                     </div>
                 </div>
             </nav>
@@ -515,7 +538,7 @@
                                     <div class="hidden md:block">
                                         <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
                                         <p class="text-xs text-gray-500">
-                                            {{ Auth::user()->role ? Auth::user()->role->display_name : 'Aucun rôle' }}
+                                            {{ Auth::user()->getRoleDisplayName() }}
                                         </p>
                                     </div>
 
@@ -528,6 +551,9 @@
                                 <div class="px-4 py-2 border-b border-gray-100">
                                     <p class="text-sm font-medium text-gray-900">{{ Auth::user()->name }}</p>
                                     <p class="text-xs text-gray-500">{{ Auth::user()->email }}</p>
+                                    @if(Auth::user()->agent)
+                                        <p class="text-xs text-gray-500">{{ Auth::user()->agent->matricule }}</p>
+                                    @endif
                                 </div>
 
                                 <a href="{{ route('profile.show') }}"

@@ -44,7 +44,6 @@ class PaiementController extends Controller
             $search = $request->search;
             $query->whereHas('agent', function($q) use ($search) {
                 $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenoms', 'like', "%{$search}%")
                   ->orWhere('matricule', 'like', "%{$search}%");
             });
         }
@@ -403,8 +402,7 @@ class PaiementController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('agent', function($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenoms', 'like', "%{$search}%");
+                $q->where('nom', 'like', "%{$search}%");
             });
         }
 
@@ -420,8 +418,7 @@ class PaiementController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->whereHas('agent', function($q) use ($search) {
-                $q->where('nom', 'like', "%{$search}%")
-                  ->orWhere('prenoms', 'like', "%{$search}%");
+                $q->where('nom', 'like', "%{$search}%");
             });
         }
 
