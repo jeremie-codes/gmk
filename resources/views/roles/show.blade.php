@@ -115,7 +115,7 @@
                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div class="flex items-center">
                                 @if($agent->hasPhoto())
-                                    <img src="{{ $agent->photo_url }}" alt="{{ $agent->full_name }}" 
+                                    <img src="{{ $agent->photo_url }}" alt="{{ $agent->full_name }}"
                                          class="w-12 h-12 rounded-full object-cover mr-3">
                                 @else
                                     <div class="w-12 h-12 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center mr-3">
@@ -123,9 +123,9 @@
                                     </div>
                                 @endif
                                 <div class="flex-1">
-                                    <h4 class="text-sm font-medium text-gray-900">{{ $agent->full_name }}</h4>
+                                    <h4 class="text-sm font-medium text-gray-900">{{ $agent->full_name ?? '' }}</h4>
                                     <p class="text-xs text-gray-500">{{ $agent->matricule }}</p>
-                                    <p class="text-xs text-gray-500">{{ $agent->direction }}</p>
+                                    <p class="text-xs text-gray-500">{{ $agent->direction->name ?? '' }}</p>
                                     @if($agent->user)
                                         <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 mt-1">
                                             <i class="bx bx-user-check mr-1"></i>
@@ -138,7 +138,7 @@
                                         </span>
                                     @endif
                                 </div>
-                                <a href="{{ route('agents.show', $agent) }}" 
+                                <a href="{{ route('agents.show', $agent) }}"
                                    class="text-gray-400 hover:text-gray-600 transition-colors">
                                     <i class="bx bx-show"></i>
                                 </a>
@@ -168,17 +168,17 @@
         </div>
         <div class="p-6">
             <div class="flex flex-wrap gap-4">
-                <a href="{{ route('roles.edit', $role) }}" 
+                <a href="{{ route('roles.edit', $role) }}"
                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                     <i class="bx bx-edit mr-2"></i>Modifier le Rôle
                 </a>
-                
-                <a href="{{ route('roles.permissions') }}" 
+
+                <a href="{{ route('roles.permissions') }}"
                    class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
                     <i class="bx bx-shield mr-2"></i>Gérer les Permissions
                 </a>
-                
-                <a href="{{ route('roles.index') }}" 
+
+                <a href="{{ route('roles.index') }}"
                    class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors">
                     <i class="bx bx-arrow-back mr-2"></i>Retour à la Liste
                 </a>

@@ -20,7 +20,7 @@
             theme: {
                 extend: {
                     colors: {
-                        'anadec-blue': '#1e40af',
+                        'anadec-blue': '#1e3a8a',
                         'anadec-light-blue': '#3b82f6',
                         'anadec-dark-blue': '#1e3a8a',
                     }
