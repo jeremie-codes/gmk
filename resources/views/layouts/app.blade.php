@@ -66,7 +66,7 @@
         <!-- Sidebar -->
         <div id="sidebar" class="sidebar-expanded transition-width bg-anadec-blue flex flex-col">
             <!-- Logo -->
-            <div class="flex items-center justify-center h-16 bg-anadec-dark-blue">
+            <div class="flex items-center justify-center h-16 bg-blue-800">
                 <div class="flex items-center">
                     <i class="bx bx-buildings text-white text-2xl"></i>
                     <span class="sidebar-text ml-2 text-white font-bold text-lg">ANADEC RH</span>
