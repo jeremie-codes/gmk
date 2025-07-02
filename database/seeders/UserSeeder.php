@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
 
         // Créer un utilisateur administrateur (DRH)
         User::updateOrCreate(
-            ['email' => 'admin@anadec.com'],
+            ['email' => 'admin@gmk.com'],
             [
                 'name' => 'Admin GMK',
                 'photo' => null, // Vous pouvez ajouter un chemin de photo si vous en avez une par défaut
@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
 
         // Créer un utilisateur RH
         User::updateOrCreate(
-            ['email' => 'rh@anadec.com'],
+            ['email' => 'rh@gmk.com'],
             [
                 'name' => 'RH GMK',
                 'photo' => null,
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
 
         // Créer un utilisateur agent
         User::updateOrCreate(
-            ['email' => 'agent@anadec.com'],
+            ['email' => 'agent@gmk.com'],
             [
                 'name' => 'Agent Test',
                 'photo' => null,
