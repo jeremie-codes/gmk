@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Fiche de Paie - ANADEC RH')
+@section('title', 'Fiche de Paie - GMK RH')
 @section('page-title', 'Fiche de Paie')
 @section('page-description', 'Fiche de paie détaillée')
 
@@ -22,7 +22,7 @@
         <div class="border-b border-gray-300 pb-6 mb-6">
             <div class="flex justify-between items-start">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900">ANADEC</h1>
+                    <h1 class="text-2xl font-bold text-gray-900">GMK</h1>
                     <p class="text-gray-600">Agence Nationale de Développement Économique</p>
                     <p class="text-gray-600">01 BP 1234 Abidjan 01</p>
                     <p class="text-gray-600">Côte d'Ivoire</p>
@@ -131,11 +131,11 @@
             <div class="flex justify-between">
                 <div>
                     <p class="text-sm text-gray-600">Date d'édition : {{ date('d/m/Y') }}</p>
-                    <p class="text-sm text-gray-600">Document généré par le système ANADEC RH</p>
+                    <p class="text-sm text-gray-600">Document généré par le système GMK RH</p>
                 </div>
                 <div class="text-right">
                     <p class="text-sm text-gray-600">Pour toute question, veuillez contacter le service RH</p>
-                    <p class="text-sm text-gray-600">Email: rh@anadec.com</p>
+                    <p class="text-sm text-gray-600">Email: rh@gmk.com</p>
                 </div>
             </div>
         </div>

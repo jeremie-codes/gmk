@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Paiements à Effectuer - ANADEC RH')
+@section('title', 'Paiements à Effectuer - GMK RH')
 @section('page-title', 'Paiements à Effectuer')
 @section('page-description', 'Interface pour effectuer les paiements validés')
 

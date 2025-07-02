@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Mes Paiements - ANADEC RH')
+@section('title', 'Mes Paiements - GMK RH')
 @section('page-title', 'Mes Paiements')
 @section('page-description', 'Historique de vos paiements et fiches de paie')
 
