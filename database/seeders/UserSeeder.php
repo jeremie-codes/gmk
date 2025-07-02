@@ -21,7 +21,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'admin@anadec.com'],
             [
-                'name' => 'Admin ANADEC',
+                'name' => 'Admin GMK',
                 'photo' => null, // Vous pouvez ajouter un chemin de photo si vous en avez une par défaut
                 'password' => Hash::make('password'), // Mot de passe par défaut
             ]
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'rh@anadec.com'],
             [
-                'name' => 'RH ANADEC',
+                'name' => 'RH GMK',
                 'photo' => null,
                 'password' => Hash::make('password'),
             ]

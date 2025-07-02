@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('agents', function (Blueprint $table) {
             // Ajouter les clés étrangères pour direction et service
-            $table->foreignId('direction_id')->nullable()->after('service')->constrained()->onDelete('set null');
+            $table->foreignId('direction_id')->nullable()->after('statut')->constrained()->onDelete('set null');
             $table->foreignId('service_id')->nullable()->after('direction_id')->constrained()->onDelete('set null');
 
             // Index pour améliorer les performances
